@@ -1,2 +1,2 @@
 mount:
-	mountpoint -q ./mnt || sudo mount /dev/nvme1n1p8 ./mnt
+	mountpoint -q ./mnt || sudo mount LABEL=BTRBK-manage-part ./mnt
