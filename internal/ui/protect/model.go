@@ -1,0 +1,83 @@
+package protect
+
+import (
+	"fmt"
+	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"milesq.dev/btrbk-manage/internal/snaps"
+)
+
+type Model struct {
+	Groups         []snaps.Group
+	Cursor         int
+	Err            error
+	Selected       *snaps.Group
+	Dir            string
+	TotalSnapshots int
+}
+
+func InitialModel(dir string) Model {
+	groups, total, err := snaps.Collect(dir)
+	return Model{
+		Groups:         groups,
+		Cursor:         0,
+		Err:            err,
+		Dir:            dir,
+		TotalSnapshots: total,
+	}
+}
+
+func (m Model) Init() tea.Cmd { return nil }
+
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q", "esc":
+			return m, tea.Quit
+		case "up", "k":
+			if len(m.Groups) > 0 && m.Cursor > 0 {
+				m.Cursor--
+			}
+		case "down", "j":
+			if len(m.Groups) > 0 && m.Cursor < len(m.Groups)-1 {
+				m.Cursor++
+			}
+		case "enter":
+			if m.Err == nil && len(m.Groups) > 0 {
+				g := m.Groups[m.Cursor]
+				m.Selected = &g
+				return m, tea.Quit
+			}
+		}
+	}
+	return m, nil
+}
+
+func (m Model) View() string {
+	if m.Err != nil {
+		return fmt.Sprintf("Error: %v\n\nDir: %s\nPress q to quit.\n", m.Err, m.Dir)
+	}
+	var b strings.Builder
+	title := fmt.Sprintf("Btrbk snapshots in %s  —  %d groups, %d items\n", m.Dir, len(m.Groups), m.TotalSnapshots)
+	b.WriteString(title)
+	b.WriteString(strings.Repeat("─", max(10, min(len(title), 80))))
+	b.WriteString("\n\n")
+
+	if len(m.Groups) == 0 {
+		b.WriteString("No snapshot groups found.\n")
+		return b.String()
+	}
+
+	// Display groups with counts; highlight cursor
+	for i, g := range m.Groups {
+		line := fmt.Sprintf("  %s  (%d)", g.Timestamp, len(g.Items))
+		if i == m.Cursor {
+			line = "> " + line[2:]
+		}
+		b.WriteString(line + "\n")
+	}
+	b.WriteString("\n↑/k, ↓/j to move • Enter to select • q/Esc to quit\n")
+	return b.String()
+}
