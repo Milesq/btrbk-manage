@@ -1,0 +1,11 @@
+{{ $workdir := getenv "PWD" }}
+
+transaction_log {{ $workdir }}/btrbk.log
+
+timestamp_format long
+snapshot_create onchange
+snapshot_dir @snaps
+
+volume {{ $workdir }}/mnt
+  subvolume @
+  subvolume @home
