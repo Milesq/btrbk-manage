@@ -4,10 +4,10 @@ import (
 	"regexp"
 )
 
-var tsRe = regexp.MustCompile(`@.*\.(\d{8}T\d{4})$`)
+var timestampRe = regexp.MustCompile(`@.*\.(\d{8}T\d{4})$`)
 
 func detectSnapshot(base string) (string, bool) {
-	m := tsRe.FindStringSubmatch(base)
+	m := timestampRe.FindStringSubmatch(base)
 
 	if m == nil {
 		return "", false
