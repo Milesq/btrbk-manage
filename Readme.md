@@ -34,7 +34,7 @@ This project uses specific terminology that differs from standard btrbk:
 - [Unified Snaps] are disabled by default so you delete only selected snaps - enable them with --unified
 -
 
-## Protecting Snapsw
+## Protecting Snaps
 
 Manager creates following structure in the snapshots dir
 ```.meta
