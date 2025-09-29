@@ -1,5 +1,7 @@
 # BTRBK Manage
 
+A management tool for organizing, protecting, and cleaning up btrbk snapshots.
+
 ## ⚠️ Instability Notice
 
 **WARNING: This software is pre-v1.0.0 and should not be used without understanding the code first.**
@@ -11,6 +13,15 @@ Not all backup configs are supported yet. (E.g `snapshot_create on_change`). Use
 - Delete specific snapshots/backups (later called "snaps")
 - Mark snaps as "protected" to avoid deletion by automatic cleanup
 - Restore snapshot
+
+## Terminology
+
+This project uses specific terminology that differs from standard btrbk:
+
+- **Snapshot**: An individual btrfs snapshot (same as btrbk)
+- **Backup**: A logical group of snapshots taken at the same point in time across multiple volumes. For example, all snapshots created at `20250909T2343` for volumes `@`, `@home`, and `@srv` form one "backup". This is NOT the same as btrbk's remote backup feature.
+
+<!-- Note: Not all snapshots in a backup group are necessarily created at the exact same time. If a snapshot is missing for a volume at the backup timestamp, the group will include the most recent previous snapshot of that volume instead. -->
 
 ## General Config
 
