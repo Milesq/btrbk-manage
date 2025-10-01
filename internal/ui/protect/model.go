@@ -60,7 +60,7 @@ func (m Model) View() string {
 		return fmt.Sprintf("Error: %v\n\nDir: %s\nPress q to quit.\n", m.Err, m.Dir)
 	}
 	var b strings.Builder
-	title := fmt.Sprintf("Btrbk snapshots in %s  —  %d groups, %d items\n", m.Dir, len(m.Groups), m.TotalSnapshots)
+	title := fmt.Sprintf("Btrbk snapshots in %s  —  %d backups, %d snapshots\n", m.Dir, len(m.Groups), m.TotalSnapshots)
 	b.WriteString(title)
 	b.WriteString(strings.Repeat("─", max(10, min(len(title), 80))))
 	b.WriteString("\n\n")
