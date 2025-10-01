@@ -17,9 +17,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	if mm, ok := m.(protect.Model); ok && mm.Selected != nil {
-		for _, it := range mm.Selected.Items {
-			fmt.Println(it.Path)
-		}
 	}
 }
