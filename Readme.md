@@ -46,9 +46,10 @@ Manager creates following structure in the snapshots dir
         └── @srv
 ```
 
-info.toml contains:
-<!-- TODO:  -->
+info.yaml contains:
 - additional user notes
+- restoration dates
+- tags
 
 ### Unified Snaps
 
