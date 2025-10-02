@@ -19,7 +19,8 @@ type Model struct {
 }
 
 func InitialModel(dir string) Model {
-	groups, total, err := snaps.Collect(dir)
+	backupManager := snaps.GetManagerForDirectory(dir)
+	groups, total, err := backupManager.Collect()
 	return Model{
 		Groups:         groups,
 		Cursor:         0,

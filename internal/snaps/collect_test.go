@@ -53,7 +53,8 @@ func TestCollect(t *testing.T) {
 
 	t.Run("empty directory", func(t *testing.T) {
 		emptyDir := createTestDir(t, tempDir, "empty")
-		groups, count, err := Collect(emptyDir)
+		manager := GetManagerForDirectory(emptyDir)
+		groups, count, err := manager.Collect()
 		assertCollectResults(t, groups, count, err, 0, 0)
 	})
 
@@ -69,7 +70,8 @@ func TestCollect(t *testing.T) {
 
 		createSnapshots(t, snapDir, snapshots)
 
-		groups, count, err := Collect(snapDir)
+		manager := GetManagerForDirectory(snapDir)
+		groups, count, err := manager.Collect()
 		assertCollectResults(t, groups, count, err, 4, 2)
 	})
 
@@ -95,13 +97,15 @@ func TestCollect(t *testing.T) {
 			t.Fatalf("Failed to create invalid dir: %v", err)
 		}
 
-		groups, count, err := Collect(mixedDir)
+		manager := GetManagerForDirectory(mixedDir)
+		groups, count, err := manager.Collect()
 		assertCollectResults(t, groups, count, err, 3, 2)
 	})
 
 	t.Run("non-existent directory", func(t *testing.T) {
 		nonExistentDir := filepath.Join(tempDir, "does_not_exist")
-		groups, count, err := Collect(nonExistentDir)
+		manager := GetManagerForDirectory(nonExistentDir)
+		groups, count, err := manager.Collect()
 		assertCollectResults(t, groups, count, err, 0, 0)
 	})
 }
