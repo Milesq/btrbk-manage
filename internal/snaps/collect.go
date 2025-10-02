@@ -5,10 +5,10 @@ import (
 	"sort"
 )
 
-func Collect(dir string) ([]Group, int, error) {
+func (mng *BackupManager) Collect() ([]Group, int, error) {
 	gmap := make(map[string][]Snapshot)
 
-	snapDir, err := os.ReadDir(dir)
+	snapDir, err := os.ReadDir(mng.dir)
 	if err != nil {
 		return nil, 0, nil
 	}
