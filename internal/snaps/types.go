@@ -1,7 +1,7 @@
 package snaps
 
 type Snapshot struct {
-	Timestamp, BaseName string
+	Timestamp, SubvolName, BaseName string
 }
 
 type Group struct {
