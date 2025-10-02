@@ -18,15 +18,16 @@ func (mng *BackupManager) Collect() ([]Group, int, error) {
 			continue
 		}
 		name := v.Name()
-		snapTimeStmp, ok := detectSnapshot(name)
+		subvolName, snapTimeStmp, ok := detectSnapshot(name)
 
 		if !ok {
 			continue
 		}
 
 		gmap[snapTimeStmp] = append(gmap[snapTimeStmp], Snapshot{
-			BaseName:  name,
-			Timestamp: snapTimeStmp,
+			BaseName:   name,
+			SubvolName: subvolName,
+			Timestamp:  snapTimeStmp,
 		})
 	}
 
