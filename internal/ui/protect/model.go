@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"milesq.dev/btrbk-manage/internal/snaps"
+	"milesq.dev/btrbk-manage/internal/utils"
 )
 
 type Model struct {
@@ -60,9 +61,9 @@ func (m Model) View() string {
 		return fmt.Sprintf("Error: %v\n\nDir: %s\nPress q to quit.\n", m.Err, m.Dir)
 	}
 	var b strings.Builder
-	title := fmt.Sprintf("Btrbk snapshots in %s  —  %d backups, %d snapshots\n", m.Dir, len(m.Groups), m.TotalSnapshots)
+	title := fmt.Sprintf("Btrbk backups in %s  —  %d backups, %d snapshots\n", m.Dir, len(m.Groups), m.TotalSnapshots)
 	b.WriteString(title)
-	b.WriteString(strings.Repeat("─", max(10, min(len(title), 80))))
+	b.WriteString(strings.Repeat("─", utils.MinMax(10, len(title), 80)))
 	b.WriteString("\n\n")
 
 	if len(m.Groups) == 0 {
@@ -70,14 +71,13 @@ func (m Model) View() string {
 		return b.String()
 	}
 
-	// Display groups with counts; highlight cursor
 	for i, g := range m.Groups {
-		line := fmt.Sprintf("  %s  (%d)", g.Timestamp, len(g.Items))
+		line := fmt.Sprintf("  %s", utils.PrettifyDate(g.Timestamp))
 		if i == m.Cursor {
 			line = "> " + line[2:]
 		}
 		b.WriteString(line + "\n")
 	}
-	b.WriteString("\n↑/k, ↓/j to move • Enter to select • q/Esc to quit\n")
+	b.WriteString("\n↑/↓ to move • Enter to select • q to quit\n")
 	return b.String()
 }
