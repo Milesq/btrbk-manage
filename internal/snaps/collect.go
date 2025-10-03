@@ -5,12 +5,13 @@ import (
 	"sort"
 )
 
-func (mng *BackupManager) Collect() ([]Group, int, error) {
+func (mng *BackupManager) Collect() (*CollectResult, error) {
 	gmap := make(map[string][]Snapshot)
+	subvolNamesMap := make(map[string]struct{})
 
 	snapDir, err := os.ReadDir(mng.dir)
 	if err != nil {
-		return nil, 0, nil
+		return nil, err
 	}
 
 	for _, v := range snapDir {
@@ -24,6 +25,7 @@ func (mng *BackupManager) Collect() ([]Group, int, error) {
 			continue
 		}
 
+		subvolNamesMap[subvolName] = struct{}{}
 		gmap[snapTimeStmp] = append(gmap[snapTimeStmp], Snapshot{
 			BaseName:   name,
 			SubvolName: subvolName,
@@ -32,7 +34,7 @@ func (mng *BackupManager) Collect() ([]Group, int, error) {
 	}
 
 	if len(gmap) == 0 {
-		return nil, 0, err
+		return &CollectResult{}, nil
 	}
 
 	groups := make([]Group, 0, len(gmap))
@@ -43,5 +45,15 @@ func (mng *BackupManager) Collect() ([]Group, int, error) {
 
 	sort.Slice(groups, func(i, j int) bool { return groups[i].Timestamp > groups[j].Timestamp })
 
-	return groups, len(snapDir), nil
+	subvolNames := make([]string, 0, len(subvolNamesMap))
+	for name := range subvolNamesMap {
+		subvolNames = append(subvolNames, name)
+	}
+	sort.Strings(subvolNames)
+
+	return &CollectResult{
+		Groups:      groups,
+		SubvolNames: subvolNames,
+		TotalCount:  len(snapDir),
+	}, nil
 }
