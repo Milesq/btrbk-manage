@@ -5,13 +5,16 @@ import (
 	"sort"
 )
 
-func (mng *BackupManager) Collect() (*CollectResult, error) {
+func (mng *BackupManager) Collect() (CollectResult, error) {
+	if mng.collectResult != nil {
+		return *mng.collectResult, nil
+	}
 	gmap := make(map[string][]Snapshot)
 	subvolNamesMap := make(map[string]struct{})
 
 	snapDir, err := os.ReadDir(mng.dir)
 	if err != nil {
-		return nil, err
+		return CollectResult{}, err
 	}
 
 	for _, v := range snapDir {
@@ -34,7 +37,7 @@ func (mng *BackupManager) Collect() (*CollectResult, error) {
 	}
 
 	if len(gmap) == 0 {
-		return &CollectResult{}, nil
+		return CollectResult{}, nil
 	}
 
 	groups := make([]Group, 0, len(gmap))
@@ -51,9 +54,11 @@ func (mng *BackupManager) Collect() (*CollectResult, error) {
 	}
 	sort.Strings(subvolNames)
 
-	return &CollectResult{
+	mng.collectResult = &CollectResult{
 		Groups:      groups,
 		SubvolNames: subvolNames,
 		TotalCount:  len(snapDir),
-	}, nil
+	}
+
+	return *mng.collectResult, nil
 }
