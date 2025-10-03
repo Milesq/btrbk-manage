@@ -20,13 +20,13 @@ type Model struct {
 
 func InitialModel(dir string) Model {
 	backupManager := snaps.GetManagerForDirectory(dir)
-	groups, total, err := backupManager.Collect()
+	backups, err := backupManager.Collect()
 	return Model{
-		Groups:         groups,
+		Groups:         backups.Groups,
 		Cursor:         0,
 		Err:            err,
 		Dir:            dir,
-		TotalSnapshots: total,
+		TotalSnapshots: backups.TotalCount,
 	}
 }
 

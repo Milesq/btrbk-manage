@@ -27,20 +27,20 @@ func createTestDir(t *testing.T, baseDir, name string) string {
 	return dirPath
 }
 
-func assertCollectResults(t *testing.T, groups []Group, count int, err error, expectedCount int, expectedGroupCount int) {
+func assertCollectResults(t *testing.T, result CollectResult, err error, expectedCount int, expectedGroupCount int) {
 	t.Helper()
 	if err != nil {
 		t.Errorf("Collect() error = %v, want nil", err)
 	}
-	if count != expectedCount {
-		t.Errorf("Collect() count = %d, want %d", count, expectedCount)
+	if result.TotalCount != expectedCount {
+		t.Errorf("Collect() count = %d, want %d", result.TotalCount, expectedCount)
 	}
-	if expectedGroupCount == 0 && groups != nil {
-		t.Errorf("Collect() groups = %v, want nil", groups)
+	if expectedGroupCount == 0 && result.Groups != nil {
+		t.Errorf("Collect() groups = %v, want nil", result.Groups)
 		return
 	}
-	if len(groups) != expectedGroupCount {
-		t.Errorf("Collect() groups length = %d, want %d", len(groups), expectedGroupCount)
+	if len(result.Groups) != expectedGroupCount {
+		t.Errorf("Collect() groups length = %d, want %d", len(result.Groups), expectedGroupCount)
 	}
 }
 
@@ -54,8 +54,8 @@ func TestCollect(t *testing.T) {
 	t.Run("empty directory", func(t *testing.T) {
 		emptyDir := createTestDir(t, tempDir, "empty")
 		manager := GetManagerForDirectory(emptyDir)
-		groups, count, err := manager.Collect()
-		assertCollectResults(t, groups, count, err, 0, 0)
+		result, err := manager.Collect()
+		assertCollectResults(t, result, err, 0, 0)
 	})
 
 	t.Run("directory with valid snapshots", func(t *testing.T) {
@@ -71,8 +71,8 @@ func TestCollect(t *testing.T) {
 		createSnapshots(t, snapDir, snapshots)
 
 		manager := GetManagerForDirectory(snapDir)
-		groups, count, err := manager.Collect()
-		assertCollectResults(t, groups, count, err, 4, 2)
+		result, err := manager.Collect()
+		assertCollectResults(t, result, err, 4, 2)
 	})
 
 	t.Run("directory with mixed entries", func(t *testing.T) {
@@ -98,14 +98,14 @@ func TestCollect(t *testing.T) {
 		}
 
 		manager := GetManagerForDirectory(mixedDir)
-		groups, count, err := manager.Collect()
-		assertCollectResults(t, groups, count, err, 3, 2)
+		result, err := manager.Collect()
+		assertCollectResults(t, result, err, 4, 2)
 	})
 
 	t.Run("non-existent directory", func(t *testing.T) {
 		nonExistentDir := filepath.Join(tempDir, "does_not_exist")
 		manager := GetManagerForDirectory(nonExistentDir)
-		groups, count, err := manager.Collect()
-		assertCollectResults(t, groups, count, err, 0, 0)
+		result, err := manager.Collect()
+		assertCollectResults(t, result, err, 0, 0)
 	})
 }

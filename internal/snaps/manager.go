@@ -8,13 +8,14 @@ import (
 )
 
 func GetManagerForDirectory(snapDirectory string) BackupManager {
-	return BackupManager{snapDirectory, nil, nil}
+	return BackupManager{snapDirectory, nil, nil, nil}
 }
 
 type BackupManager struct {
 	dir                 string
 	availableSubvolumes []string
 	subvolumes          []string
+	collectResult       *CollectResult
 }
 
 func (mng *BackupManager) AvailableSubvolumes() []string {
