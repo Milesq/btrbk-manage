@@ -2,6 +2,8 @@ package snaps
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 )
 
@@ -33,4 +35,9 @@ func (mng *BackupManager) SetSubvolumes(subvolumes []string) error {
 
 func (mng *BackupManager) isAvailable(subvolume string) bool {
 	return slices.Contains(mng.availableSubvolumes, subvolume)
+}
+
+func (mng *BackupManager) setupSubvolumeMeta(timestamp string) error {
+	metaDir := filepath.Join(mng.dir, ".meta", timestamp)
+	return os.MkdirAll(metaDir, 0755)
 }
