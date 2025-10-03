@@ -8,3 +8,9 @@ type Group struct {
 	Timestamp string
 	Items     []Snapshot
 }
+
+type CollectResult struct {
+	Groups      []Group
+	SubvolNames []string
+	TotalCount  int
+}
