@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"gopkg.in/yaml.v3"
 )
 
 func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
@@ -48,5 +50,15 @@ func (mng *BackupManager) persistBackup(timestamp string) error {
 }
 
 func (mng *BackupManager) attachNote(timestamp string, note ProtectionNote) error {
+	yamlData, err := yaml.Marshal(&note)
+	if err != nil {
+		return fmt.Errorf("failed to marshal note to YAML: %w", err)
+	}
+
+	infoPath := filepath.Join(mng.dir, ".meta", timestamp, "info.yaml")
+	if err := os.WriteFile(infoPath, yamlData, 0644); err != nil {
+		return fmt.Errorf("failed to write info.yaml: %w", err)
+	}
+
 	return nil
 }
