@@ -1,0 +1,52 @@
+package snaps
+
+import (
+	"bytes"
+	"errors"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+)
+
+func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
+	err := mng.persistBackup(timestamp)
+	if err != nil {
+		return err
+	}
+
+	return mng.attachNote(timestamp, note)
+}
+
+func (mng *BackupManager) persistBackup(timestamp string) error {
+	errSetupMeta := mng.setupSubvolumeMeta(timestamp)
+	backups, errCollect := mng.Collect()
+
+	err := errors.Join(errSetupMeta, errCollect)
+	if err != nil {
+		return err
+	}
+
+	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
+
+	for _, subvolName := range backups.SubvolNames {
+		srcPath := filepath.Join(mng.dir, subvolName+"."+timestamp)
+		dstPath := filepath.Join(metaTimestampDir, subvolName)
+
+		var stderr bytes.Buffer
+		cmd := exec.Command("btrfs", "subvolume", "snapshot", "-r", srcPath, dstPath)
+		cmd.Stdout = os.Stdout
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to snapshot %s: %w", subvolName, err)
+		}
+		if stderr.Len() > 0 {
+			return errors.New(stderr.String())
+		}
+	}
+
+	return nil
+}
+
+func (mng *BackupManager) attachNote(timestamp string, note ProtectionNote) error {
+	return nil
+}
