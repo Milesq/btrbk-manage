@@ -31,8 +31,11 @@ clear target="meta":
         rm -rf ./mnt/@snaps/.meta/*
     elif [ "{{target}}" = "all" ]; then
         just clear
+        sudo btrfs subvolume delete ./mnt/@snaps/.meta/.trash/*/** 2>/dev/null || true
+
         sudo btrfs subvolume delete ./mnt/@snaps/*/** 2>/dev/null || true
         sudo btrfs subvolume delete ./mnt/@snaps/* 2>/dev/null || true
+        rm -rf ./mnt/@snaps/.meta/
         rm -rf ./mnt/@snaps/***
     else
         echo "Invalid target: {{target}}. Use 'meta' or 'all'."
