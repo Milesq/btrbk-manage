@@ -23,3 +23,18 @@ prepare: mount
 
 bck: mount
     sudo btrbk run -c ./btrbk.conf
+
+clear target="meta":
+    #!/usr/bin/env bash
+    if [ "{{target}}" = "meta" ]; then
+        sudo btrfs subvolume delete ./mnt/@snaps/.meta/*/** 2>/dev/null || true
+        rm -rf ./mnt/@snaps/.meta/*
+    elif [ "{{target}}" = "all" ]; then
+        just clear
+        sudo btrfs subvolume delete ./mnt/@snaps/*/** 2>/dev/null || true
+        sudo btrfs subvolume delete ./mnt/@snaps/* 2>/dev/null || true
+        rm -rf ./mnt/@snaps/***
+    else
+        echo "Invalid target: {{target}}. Use 'meta' or 'all'."
+        exit 1
+    fi
