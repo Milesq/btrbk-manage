@@ -24,6 +24,21 @@ func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
 	return mng.attachNote(timestamp, note)
 }
 
+func (mng *BackupManager) FreePersistance(timestamp string) error {
+	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
+	trashDir := filepath.Join(mng.dir, ".meta/.trash", timestamp)
+
+	if err := os.MkdirAll(filepath.Dir(trashDir), 0755); err != nil {
+		return fmt.Errorf("failed to create .trash directory: %w", err)
+	}
+
+	if err := os.Rename(metaTimestampDir, trashDir); err != nil {
+		return fmt.Errorf("failed to move %s to trash: %w", timestamp, err)
+	}
+
+	return nil
+}
+
 func (mng *BackupManager) isProtected(timestamp string) bool {
 	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
 	_, err := os.Stat(metaTimestampDir)
