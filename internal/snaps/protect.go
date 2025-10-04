@@ -12,12 +12,22 @@ import (
 )
 
 func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
+	if mng.isProtected(timestamp) {
+		return fmt.Errorf("backup at timestamp %s is already protected", timestamp)
+	}
+
 	err := mng.persistBackup(timestamp)
 	if err != nil {
 		return err
 	}
 
 	return mng.attachNote(timestamp, note)
+}
+
+func (mng *BackupManager) isProtected(timestamp string) bool {
+	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
+	_, err := os.Stat(metaTimestampDir)
+	return err == nil
 }
 
 func (mng *BackupManager) persistBackup(timestamp string) error {
