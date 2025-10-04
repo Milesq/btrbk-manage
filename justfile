@@ -21,3 +21,5 @@ prepare: mount
     touch ./mnt/.gitkeep
     echo data > ./mnt/@/data
 
+bck: mount
+    sudo btrbk run -c ./btrbk.conf
