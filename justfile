@@ -19,7 +19,7 @@ prepare: mount
     sudo btrfs subvolume create ./mnt/@ ./mnt/@home ./mnt/@snaps
     sudo chown -R $(id -u):$(id -g) ./mnt
     touch ./mnt/.gitkeep
-    echo data > ./mnt/@/data
+    test -f ./mnt/@/data || echo data > ./mnt/@/data
 
 bck: mount
     sudo btrbk run -c ./btrbk.conf
