@@ -31,20 +31,24 @@ This project uses specific terminology that differs from standard btrbk:
 
 - by default trashes snaps to SNAPDIR/.trash
 - can permanently delete with `--permanent` flag
-- [Unified Snaps] are disabled by default so you delete only selected snaps - enable them with --unified
--
+- [Unified Snaps] are disabled by default so you delete only selected snaps - enable them with
+-unified
 
 ## Protecting Snaps
 
 Manager creates following structure in the snapshots dir
 ```.meta
 └── 20250909T2343
-    ├── info.toml
+    ├── info.yaml
     └── snaps
         ├── @
         ├── @home
         └── @srv
 ```
+
+When unchecking a protected backup, the backup is moved to `.trash` directory instead of being immediately deleted.
+
+User can review and purge the trash by pressing T in the protect subcommand.
 
 info.yaml contains:
 - additional user notes
