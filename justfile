@@ -2,7 +2,7 @@ mount:
     mountpoint -q ./mnt || sudo mount LABEL=BTRBK-manage-part ./mnt
 
 build:
-    go build -o bin/ ./cmd/...
+    go build -tags prod -o bin/ ./cmd/...
 
 run cmd:
     go run ./cmd/btrbk-{{cmd}}/main.go
