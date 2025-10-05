@@ -10,15 +10,23 @@ import (
 )
 
 type Model struct {
-	Dir string
-	mng snaps.BackupManager
+	// Core
+	mng            snaps.BackupManager
+	Dir            string
+	Groups         []snaps.Group
+	TotalSnapshots int
 
+	// General State
 	Err    error
 	Cursor int
 
-	Selected       *snaps.Group
-	Groups         []snaps.Group
-	TotalSnapshots int
+	// Modes flags
+	ListProtectedOnly bool
+	TrashMode         bool
+	SelectedForEdit   *snaps.Group
+
+	// Edit mode
+	CurrentProtectionNote snaps.ProtectionNote
 }
 
 func InitialModel(dir string) Model {
@@ -53,9 +61,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.Err == nil && len(m.Groups) > 0 {
-				g := m.Groups[m.Cursor]
-				m.Selected = &g
-				return m, tea.Quit
+				m.SelectedForEdit = &m.Groups[m.Cursor]
 			}
 		}
 	}
@@ -72,9 +78,19 @@ func (m Model) View() string {
 	b.WriteString(strings.Repeat("─", utils.MinMax(10, len(title), 80)))
 	b.WriteString("\n\n")
 
+	if m.SelectedForEdit != nil {
+		m.ViewEditNote(&b)
+	} else {
+		m.ViewList(&b)
+	}
+
+	return b.String()
+}
+
+func (m Model) ViewList(b *strings.Builder) {
 	if len(m.Groups) == 0 {
 		b.WriteString("No snapshot groups found.\n")
-		return b.String()
+		return
 	}
 
 	for i, g := range m.Groups {
@@ -85,5 +101,8 @@ func (m Model) View() string {
 		b.WriteString(line + "\n")
 	}
 	b.WriteString("\n↑/↓ to move • Enter to select • q to quit\n")
-	return b.String()
+}
+
+func (m Model) ViewEditNote(b *strings.Builder) {
+
 }
