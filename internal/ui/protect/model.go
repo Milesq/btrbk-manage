@@ -35,7 +35,6 @@ func InitialModel(dir string) Model {
 
 	return Model{
 		Groups:         backups.Groups,
-		Cursor:         0,
 		Err:            err,
 		Dir:            dir,
 		TotalSnapshots: backups.TotalCount,
