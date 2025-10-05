@@ -75,12 +75,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q", "esc":
 			return m, tea.Batch(formCmd, tea.Quit)
 		case "up", "k":
-			if len(m.Groups) > 0 && m.Cursor > 0 {
-				m.Cursor--
+			m.Cursor--
+			if m.Cursor < 0 {
+				m.Cursor = max(0, len(m.Groups)-1)
 			}
 		case "down", "j":
-			if len(m.Groups) > 0 && m.Cursor < len(m.Groups)-1 {
-				m.Cursor++
+			m.Cursor++
+			if m.Cursor >= len(m.Groups) {
+				m.Cursor = 0
 			}
 		case "enter":
 			if m.Err == nil && len(m.Groups) > 0 {
