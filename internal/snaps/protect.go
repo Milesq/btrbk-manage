@@ -16,7 +16,14 @@ func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
 		return fmt.Errorf("backup at timestamp %s is already protected", timestamp)
 	}
 
-	err := mng.persistBackup(timestamp)
+	var err error
+	if mng.isInTrash(timestamp) {
+		fmt.Println("Restoring from trash:", timestamp)
+		err = mng.restoreFromTrash(timestamp)
+	} else {
+		fmt.Println("new protect:", timestamp)
+		err = mng.persistBackup(timestamp)
+	}
 	if err != nil {
 		return err
 	}
@@ -43,6 +50,23 @@ func (mng *BackupManager) isProtected(timestamp string) bool {
 	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
 	_, err := os.Stat(metaTimestampDir)
 	return err == nil
+}
+
+func (mng *BackupManager) isInTrash(timestamp string) bool {
+	trashDir := filepath.Join(mng.dir, ".meta/.trash", timestamp)
+	_, err := os.Stat(trashDir)
+	return err == nil
+}
+
+func (mng *BackupManager) restoreFromTrash(timestamp string) error {
+	trashDir := filepath.Join(mng.dir, ".meta/.trash", timestamp)
+	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
+
+	if err := os.Rename(trashDir, metaTimestampDir); err != nil {
+		return fmt.Errorf("failed to restore %s from trash: %w", timestamp, err)
+	}
+
+	return nil
 }
 
 func (mng *BackupManager) persistBackup(timestamp string) error {
