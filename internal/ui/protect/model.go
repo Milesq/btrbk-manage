@@ -10,23 +10,28 @@ import (
 )
 
 type Model struct {
-	Groups         []snaps.Group
-	Cursor         int
-	Err            error
+	Dir string
+	mng snaps.BackupManager
+
+	Err    error
+	Cursor int
+
 	Selected       *snaps.Group
-	Dir            string
+	Groups         []snaps.Group
 	TotalSnapshots int
 }
 
 func InitialModel(dir string) Model {
 	backupManager := snaps.GetManagerForDirectory(dir)
 	backups, err := backupManager.Collect()
+
 	return Model{
 		Groups:         backups.Groups,
 		Cursor:         0,
 		Err:            err,
 		Dir:            dir,
 		TotalSnapshots: backups.TotalCount,
+		mng:            backupManager,
 	}
 }
 
