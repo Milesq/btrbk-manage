@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("050"))
-	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-	cursorStyle  = focusedStyle
+	focusedStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("050"))
+	blurredStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	unpersistedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("999"))
+	cursorStyle      = focusedStyle
 
 	focusedButton = focusedStyle.Render("[ Submit ]")
 	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
@@ -44,11 +45,26 @@ func (m Model) ViewList(b *strings.Builder) {
 	}
 
 	for i, g := range m.Groups {
-		line := fmt.Sprintf("  %s", utils.PrettifyDate(g.Timestamp))
+		line := fmt.Sprintf("   %s", utils.PrettifyDate(g.Timestamp))
+
+		var prepends string
+		var prependsRealLength int
+
+		prependsRealLength += 2
 		if i == m.Cursor {
-			line = focusedStyle.Render("> ") + line[2:]
+			prepends += focusedStyle.Render("> ")
+		} else {
+			prepends += "  "
 		}
-		b.WriteString(line + "\n")
+
+		prependsRealLength++
+		if g.IsProtected {
+			prepends += focusedStyle.Render("★")
+		} else {
+			prepends += " "
+		}
+
+		b.WriteString(prepends + line[prependsRealLength:] + "\n")
 	}
 
 	dot := focusedStyle.Render(" • ")

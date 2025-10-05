@@ -5,8 +5,9 @@ type Snapshot struct {
 }
 
 type Group struct {
-	Timestamp string
-	Items     []Snapshot
+	Timestamp   string
+	Items       []Snapshot
+	IsProtected bool
 }
 
 type CollectResult struct {

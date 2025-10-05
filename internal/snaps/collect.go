@@ -43,7 +43,7 @@ func (mng *BackupManager) Collect() (CollectResult, error) {
 	groups := make([]Group, 0, len(gmap))
 	for ts, items := range gmap {
 		sort.Slice(items, func(i, j int) bool { return items[i].BaseName < items[j].BaseName })
-		groups = append(groups, Group{Timestamp: ts, Items: items})
+		groups = append(groups, Group{Timestamp: ts, Items: items, IsProtected: mng.isProtected(ts)})
 	}
 
 	sort.Slice(groups, func(i, j int) bool { return groups[i].Timestamp > groups[j].Timestamp })
