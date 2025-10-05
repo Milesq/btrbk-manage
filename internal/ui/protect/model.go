@@ -1,12 +1,11 @@
 package protect
 
 import (
-	"fmt"
-	"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"milesq.dev/btrbk-manage/internal/snaps"
-	"milesq.dev/btrbk-manage/internal/utils"
+	"milesq.dev/btrbk-manage/pkg/components"
+	"milesq.dev/btrbk-manage/pkg/form"
 )
 
 type Model struct {
@@ -25,13 +24,15 @@ type Model struct {
 	TrashMode         bool
 	SelectedForEdit   *snaps.Group
 
-	// Edit mode
-	CurrentProtectionNote snaps.ProtectionNote
+	// SubComponents
+	form form.Model
 }
 
 func InitialModel(dir string) Model {
 	backupManager := snaps.GetManagerForDirectory(dir)
 	backups, err := backupManager.Collect()
+
+	inputs := getProtectionNoteInputs()
 
 	return Model{
 		Groups:         backups.Groups,
@@ -39,17 +40,40 @@ func InitialModel(dir string) Model {
 		Dir:            dir,
 		TotalSnapshots: backups.TotalCount,
 		mng:            backupManager,
+		form: form.New(inputs, form.FormStyles{
+			BlurredButton: blurredButton,
+			FocusedButton: focusedButton,
+			BlurStyle:     lipgloss.NewStyle(),
+			FocuseStyle:   focusedStyle,
+		}),
 	}
 }
 
-func (m Model) Init() tea.Cmd { return nil }
+func (m Model) Init() tea.Cmd {
+	return m.form.Init()
+}
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var formCmd tea.Cmd
+
+	if m.SelectedForEdit != nil {
+		var meta *components.UpdateMeta
+		m.form, formCmd, meta = m.form.Update(msg)
+
+		if meta != nil && meta.Finish {
+			m.SelectedForEdit = nil
+		}
+
+		if meta == nil || !meta.PassThrough {
+			return m, formCmd
+		}
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
-			return m, tea.Quit
+			return m, tea.Batch(formCmd, tea.Quit)
 		case "up", "k":
 			if len(m.Groups) > 0 && m.Cursor > 0 {
 				m.Cursor--
@@ -64,44 +88,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-	return m, nil
-}
-
-func (m Model) View() string {
-	if m.Err != nil {
-		return fmt.Sprintf("Error: %v\n\nDir: %s\nPress q to quit.\n", m.Err, m.Dir)
-	}
-	var b strings.Builder
-	title := fmt.Sprintf("Btrbk backups in %s  —  %d backups, %d snapshots\n", m.Dir, len(m.Groups), m.TotalSnapshots)
-	b.WriteString(title)
-	b.WriteString(strings.Repeat("─", utils.MinMax(10, len(title), 80)))
-	b.WriteString("\n\n")
-
-	if m.SelectedForEdit != nil {
-		m.ViewEditNote(&b)
-	} else {
-		m.ViewList(&b)
-	}
-
-	return b.String()
-}
-
-func (m Model) ViewList(b *strings.Builder) {
-	if len(m.Groups) == 0 {
-		b.WriteString("No snapshot groups found.\n")
-		return
-	}
-
-	for i, g := range m.Groups {
-		line := fmt.Sprintf("  %s", utils.PrettifyDate(g.Timestamp))
-		if i == m.Cursor {
-			line = "> " + line[2:]
-		}
-		b.WriteString(line + "\n")
-	}
-	b.WriteString("\n↑/↓ to move • Enter to select • q to quit\n")
-}
-
-func (m Model) ViewEditNote(b *strings.Builder) {
-
+	return m, formCmd
 }
