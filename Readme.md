@@ -1,6 +1,6 @@
 # BTRBK Manage
 
-A management tool for organizing, protecting, and cleaning up btrbk snapshots.
+A unified management tool for organizing, protecting, and cleaning up btrbk snapshots.
 
 ## ⚠️ Instability Notice
 
@@ -8,11 +8,29 @@ A management tool for organizing, protecting, and cleaning up btrbk snapshots.
 
 Not all backup configs are supported yet. (E.g `snapshot_create on_change`). Use at your own risk and always test thoroughly before using on production data.
 
+## Architecture
+
+All functionality is consolidated into a single `btrbk-manage` binary that provides an interactive TUI for managing snapshots.
+
+## Usage
+
+```bash
+btrbk-manage [snapshot-directory]
+```
+
+The tool launches an interactive terminal UI where you can:
+- Navigate snapshots/backups using arrow keys
+- Press `Space` to protect/unprotect backups
+- Press `Enter` to edit protection notes
+- Press `T` to review and purge the trash
+- Press `q` to quit
+
 ## Capabilities
 
 - Delete specific snapshots/backups (later called "snaps")
 - Mark snaps as "protected" to avoid deletion by automatic cleanup
-- Restore snapshot
+- Restore snapshots
+- Review and purge trashed backups
 
 ## Terminology
 
@@ -23,20 +41,21 @@ This project uses specific terminology that differs from standard btrbk:
 
 <!-- Note: Not all snapshots in a backup group are necessarily created at the exact same time. If a snapshot is missing for a volume at the backup timestamp, the group will include the most recent previous snapshot of that volume instead. -->
 
-## General Config
+## Configuration
 
-- takes a snapshot directory utilizing `btrbk list`
+The tool reads snapshot directories and utilizes `btrbk list` to enumerate available snapshots.
 
-## Deleting Snaps
+## Features
 
-- by default trashes snaps to SNAPDIR/.trash
-- can permanently delete with `--permanent` flag
-- [Unified Snaps] are disabled by default so you delete only selected snaps - enable them with
--unified
+### Deleting Snaps
 
-## Protecting Snaps
+- By default, snaps are moved to `SNAPDIR/.trash` instead of being permanently deleted
+- Trashed items can be reviewed and purged from within the UI (press `T`)
+- Provides a safety net for accidental deletions
 
-Manager creates following structure in the snapshots dir
+### Protecting Snaps
+
+The tool creates the following metadata structure in the snapshots directory:
 ```.meta
 └── 20250909T2343
     ├── info.yaml
@@ -46,14 +65,14 @@ Manager creates following structure in the snapshots dir
         └── @srv
 ```
 
-When unchecking a protected backup, the backup is moved to `.trash` directory instead of being immediately deleted.
+When unchecking a protected backup, it is moved to the `.trash` directory instead of being immediately deleted.
 
-User can review and purge the trash by pressing T in the protect subcommand.
+You can review and purge the trash by pressing `T` within the UI.
 
-info.yaml contains:
-- additional user notes
-- restoration dates
-- tags
+`info.yaml` contains:
+- User notes for the backup
+- Restoration dates
+- Tags
 
 ### Unified Snaps
 

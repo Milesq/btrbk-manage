@@ -4,8 +4,8 @@ mount:
 build:
     go build -tags prod -o bin/ ./cmd/...
 
-run cmd:
-    go run ./cmd/btrbk-{{cmd}}/main.go
+run cmd="btrbk-manage":
+    go run ./cmd/{{cmd}}/main.go
 
 test:
     go fmt ./...
