@@ -63,8 +63,11 @@ func (m Model) ViewList(b *strings.Builder) {
 		} else {
 			prepends += " "
 		}
-
-		b.WriteString(prepends + line[prependsRealLength:] + "\n")
+		timestampStyle := lipgloss.NewStyle()
+		if g.IsProtected {
+			timestampStyle = unpersistedStyle
+		}
+		b.WriteString(prepends + timestampStyle.Render(line[prependsRealLength:]) + "\n")
 	}
 
 	dot := focusedStyle.Render(" • ")

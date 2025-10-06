@@ -84,11 +84,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.Cursor >= len(m.Groups) {
 				m.Cursor = 0
 			}
+		case " ":
+			group := &m.Groups[m.Cursor]
+			if group.IsProtected {
+				m.Err = m.mng.FreePersistance(group.Timestamp)
+			} else {
+				m.Err = m.mng.Protect(group.Timestamp, snaps.ProtectionNote{})
+				m.SelectedForEdit = group
+			}
+			m.recollect()
 		case "enter":
 			if m.Err == nil && len(m.Groups) > 0 {
-				m.SelectedForEdit = &m.Groups[m.Cursor]
+				group := &m.Groups[m.Cursor]
+				if group.IsProtected {
+					m.SelectedForEdit = group
+				}
 			}
 		}
 	}
 	return m, formCmd
+}
+
+func (m *Model) recollect() {
+	m.mng.ClearCache()
+	backups, err := m.mng.Collect()
+	m.Err = err
+	m.TotalSnapshots = backups.TotalCount
+	m.Groups = backups.Groups
 }

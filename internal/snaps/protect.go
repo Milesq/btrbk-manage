@@ -31,6 +31,10 @@ func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
 	return mng.attachNote(timestamp, note)
 }
 
+func (mng *BackupManager) ClearCache() {
+	mng.collectResult = nil
+}
+
 func (mng *BackupManager) FreePersistance(timestamp string) error {
 	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
 	trashDir := filepath.Join(mng.dir, ".meta/.trash", timestamp)
