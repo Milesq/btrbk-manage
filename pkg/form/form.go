@@ -6,27 +6,24 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"milesq.dev/btrbk-manage/pkg/components"
 )
 
 type Model struct {
-	Inputs     []textinput.Model
-	focusIndex int
-	styles     FormStyles
+	Inputs      []textinput.Model
+	focusIndex  int
+	styles      FormStyles
+	clearOnExit bool
 }
 
-type FormStyles struct {
-	BlurredButton string
-	FocusedButton string
-	BlurStyle     lipgloss.Style
-	FocuseStyle   lipgloss.Style
-}
-
-func New(inputs []textinput.Model, styles FormStyles) Model {
+func New(inputs []textinput.Model, props *FormProps) Model {
+	if props == nil {
+		props = &FormProps{}
+	}
 	return Model{
-		Inputs: inputs,
-		styles: styles,
+		Inputs:      inputs,
+		styles:      props.Styles(),
+		clearOnExit: props.ClearOnExit(),
 	}
 }
 
@@ -42,6 +39,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *components.UpdateMeta) {
 		case "ctrl+c":
 			return m, nil, PassThroughMsg
 		case "esc":
+			if m.clearOnExit {
+				m.Clear()
+			}
 			return m, finished(UserCanceled, nil), nil
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
@@ -49,7 +49,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *components.UpdateMeta) {
 			// Did the user press enter while the submit button was focused?
 			// If so, exit.
 			if s == "enter" && m.focusIndex == len(m.Inputs) {
-				return m, finished(UserSaved, m.GetValues()), nil
+				values := m.GetValues()
+				if m.clearOnExit {
+					m.Clear()
+				}
+				return m, finished(UserSaved, values), nil
 			}
 
 			// Cycle indexes
@@ -126,4 +130,10 @@ func (m Model) GetValues() []string {
 		values[i] = input.Value()
 	}
 	return values
+}
+
+func (m *Model) Clear() {
+	for i := range m.Inputs {
+		m.Inputs[i].SetValue("")
+	}
 }
