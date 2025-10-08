@@ -40,12 +40,12 @@ func InitialModel(dir string) Model {
 		Dir:            dir,
 		TotalSnapshots: backups.TotalCount,
 		mng:            backupManager,
-		form: form.New(inputs, form.FormStyles{
+		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
 			BlurredButton: blurredButton,
 			FocusedButton: focusedButton,
 			BlurStyle:     lipgloss.NewStyle(),
 			FocuseStyle:   focusedStyle,
-		}),
+		})),
 	}
 }
 
