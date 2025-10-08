@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
 	"milesq.dev/btrbk-manage/pkg/components"
 )
 
@@ -36,20 +35,21 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *components.UpdateMeta) {
+	PassThroughMsg := &components.UpdateMeta{PassThrough: true}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
-			return m, nil, &components.UpdateMeta{PassThrough: true}
+			return m, nil, PassThroughMsg
 		case "esc":
-			return m, nil, &components.UpdateMeta{Finish: true}
+			return m, finished(UserCanceled, nil), nil
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
 
 			// Did the user press enter while the submit button was focused?
 			// If so, exit.
 			if s == "enter" && m.focusIndex == len(m.Inputs) {
-				return m, nil, &components.UpdateMeta{Finish: true}
+				return m, finished(UserSaved, m.GetValues()), nil
 			}
 
 			// Cycle indexes
@@ -80,6 +80,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *components.UpdateMeta) {
 
 			return m, cmd, nil
 		}
+	default:
+		return m, nil, PassThroughMsg
 	}
 
 	cmd := m.updateInputs(msg)
@@ -116,4 +118,12 @@ func (m Model) View() string {
 	fmt.Fprintf(&b, "\n\n%s\n\n", *button)
 
 	return b.String()
+}
+
+func (m Model) GetValues() []string {
+	values := make([]string, len(m.Inputs))
+	for i, input := range m.Inputs {
+		values[i] = input.Value()
+	}
+	return values
 }
