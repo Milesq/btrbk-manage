@@ -9,10 +9,17 @@ func (mng *BackupManager) Collect() (CollectResult, error) {
 	if mng.collectResult != nil {
 		return *mng.collectResult, nil
 	}
+
+	unprotected, err := mng.collectSnapshotsFrom(mng.dir)
+	mng.collectResult = &unprotected
+	return unprotected, err
+}
+
+func (mng *BackupManager) collectSnapshotsFrom(dir string) (CollectResult, error) {
 	gmap := make(map[string][]Snapshot)
 	subvolNamesMap := make(map[string]struct{})
 
-	snapDir, err := os.ReadDir(mng.dir)
+	snapDir, err := os.ReadDir(dir)
 	if err != nil {
 		return CollectResult{}, err
 	}
@@ -54,11 +61,10 @@ func (mng *BackupManager) Collect() (CollectResult, error) {
 	}
 	sort.Strings(subvolNames)
 
-	mng.collectResult = &CollectResult{
+	return CollectResult{
 		Groups:      groups,
 		SubvolNames: subvolNames,
 		TotalCount:  len(snapDir),
-	}
+	}, nil
 
-	return *mng.collectResult, nil
 }

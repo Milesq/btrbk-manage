@@ -30,17 +30,17 @@ func createTestDir(t *testing.T, baseDir, name string) string {
 func assertCollectResults(t *testing.T, result CollectResult, err error, expectedCount int, expectedGroupCount int) {
 	t.Helper()
 	if err != nil {
-		t.Errorf("Collect() error = %v, want nil", err)
+		t.Errorf("collectSnapshotsFrom() error = %v, want nil", err)
 	}
 	if result.TotalCount != expectedCount {
-		t.Errorf("Collect() count = %d, want %d", result.TotalCount, expectedCount)
+		t.Errorf("collectSnapshotsFrom() count = %d, want %d", result.TotalCount, expectedCount)
 	}
 	if expectedGroupCount == 0 && result.Groups != nil {
-		t.Errorf("Collect() groups = %v, want nil", result.Groups)
+		t.Errorf("collectSnapshotsFrom() groups = %v, want nil", result.Groups)
 		return
 	}
 	if len(result.Groups) != expectedGroupCount {
-		t.Errorf("Collect() groups length = %d, want %d", len(result.Groups), expectedGroupCount)
+		t.Errorf("collectSnapshotsFrom() groups length = %d, want %d", len(result.Groups), expectedGroupCount)
 	}
 }
 
@@ -54,7 +54,7 @@ func TestCollect(t *testing.T) {
 	t.Run("empty directory", func(t *testing.T) {
 		emptyDir := createTestDir(t, tempDir, "empty")
 		manager := GetManagerForDirectory(emptyDir)
-		result, err := manager.Collect()
+		result, err := manager.collectSnapshotsFrom()
 		assertCollectResults(t, result, err, 0, 0)
 	})
 
@@ -71,7 +71,7 @@ func TestCollect(t *testing.T) {
 		createSnapshots(t, snapDir, snapshots)
 
 		manager := GetManagerForDirectory(snapDir)
-		result, err := manager.Collect()
+		result, err := manager.collectSnapshotsFrom()
 		assertCollectResults(t, result, err, 4, 2)
 	})
 
@@ -98,14 +98,16 @@ func TestCollect(t *testing.T) {
 		}
 
 		manager := GetManagerForDirectory(mixedDir)
-		result, err := manager.Collect()
+		result, err := manager.collectSnapshotsFrom()
 		assertCollectResults(t, result, err, 4, 2)
 	})
 
 	t.Run("non-existent directory", func(t *testing.T) {
 		nonExistentDir := filepath.Join(tempDir, "does_not_exist")
 		manager := GetManagerForDirectory(nonExistentDir)
-		result, err := manager.Collect()
-		assertCollectResults(t, result, err, 0, 0)
+		_, err := manager.collectSnapshotsFrom()
+		if err == nil {
+			t.Error("collectSnapshotsFrom() expected error for non-existent directory, got nil")
+		}
 	})
 }
