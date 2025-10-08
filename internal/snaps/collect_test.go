@@ -54,7 +54,7 @@ func TestCollect(t *testing.T) {
 	t.Run("empty directory", func(t *testing.T) {
 		emptyDir := createTestDir(t, tempDir, "empty")
 		manager := GetManagerForDirectory(emptyDir)
-		result, err := manager.collectSnapshotsFrom()
+		result, err := manager.collectSnapshotsFrom(emptyDir)
 		assertCollectResults(t, result, err, 0, 0)
 	})
 
@@ -71,7 +71,7 @@ func TestCollect(t *testing.T) {
 		createSnapshots(t, snapDir, snapshots)
 
 		manager := GetManagerForDirectory(snapDir)
-		result, err := manager.collectSnapshotsFrom()
+		result, err := manager.collectSnapshotsFrom(snapDir)
 		assertCollectResults(t, result, err, 4, 2)
 	})
 
@@ -98,14 +98,14 @@ func TestCollect(t *testing.T) {
 		}
 
 		manager := GetManagerForDirectory(mixedDir)
-		result, err := manager.collectSnapshotsFrom()
+		result, err := manager.collectSnapshotsFrom(mixedDir)
 		assertCollectResults(t, result, err, 4, 2)
 	})
 
 	t.Run("non-existent directory", func(t *testing.T) {
 		nonExistentDir := filepath.Join(tempDir, "does_not_exist")
 		manager := GetManagerForDirectory(nonExistentDir)
-		_, err := manager.collectSnapshotsFrom()
+		_, err := manager.collectSnapshotsFrom(nonExistentDir)
 		if err == nil {
 			t.Error("collectSnapshotsFrom() expected error for non-existent directory, got nil")
 		}
