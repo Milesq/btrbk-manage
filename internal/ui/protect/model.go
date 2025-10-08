@@ -54,26 +54,36 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var formCmd tea.Cmd
-
+	var cmds []tea.Cmd
 	if m.SelectedForEdit != nil {
+		var formCmd tea.Cmd
 		var meta *components.UpdateMeta
 		m.form, formCmd, meta = m.form.Update(msg)
-
-		if meta != nil && meta.Finish {
-			m.SelectedForEdit = nil
-		}
 
 		if meta == nil || !meta.PassThrough {
 			return m, formCmd
 		}
+		cmds = append(cmds, formCmd)
 	}
 
 	switch msg := msg.(type) {
+	case form.ExitMsg:
+		if msg.Reason == form.UserSaved {
+			note, err := snaps.GetProtectionNote(msg.Values)
+			if err != nil {
+				m.Err = err
+				return m, tea.Batch(cmds...)
+			}
+
+			m.Err = m.mng.Protect(m.SelectedForEdit.Timestamp, note)
+
+			m.recollect()
+		}
+		m.SelectedForEdit = nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
-			return m, tea.Batch(formCmd, tea.Quit)
+			cmds = append(cmds, tea.Quit)
 		case "up", "k":
 			m.Cursor--
 			if m.Cursor < 0 {
@@ -88,11 +98,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			group := &m.Groups[m.Cursor]
 			if group.IsProtected {
 				m.Err = m.mng.FreePersistance(group.Timestamp)
+				m.recollect()
 			} else {
-				m.Err = m.mng.Protect(group.Timestamp, snaps.ProtectionNote{})
 				m.SelectedForEdit = group
 			}
-			m.recollect()
 		case "enter":
 			if m.Err == nil && len(m.Groups) > 0 {
 				group := &m.Groups[m.Cursor]
@@ -102,7 +111,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-	return m, formCmd
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *Model) recollect() {
