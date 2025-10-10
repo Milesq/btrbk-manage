@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-func (mng *BackupManager) collectSnapshotsFrom(dir string) (CollectResult, error) {
+func collectSnapshots(dir string) (CollectResult, error) {
 	gmap := make(map[string][]Snapshot)
 	subvolNamesMap := make(map[string]struct{})
 
@@ -40,7 +40,7 @@ func (mng *BackupManager) collectSnapshotsFrom(dir string) (CollectResult, error
 	backups := make([]Backup, 0, len(gmap))
 	for ts, items := range gmap {
 		sort.Slice(items, func(i, j int) bool { return items[i].BaseName < items[j].BaseName })
-		backups = append(backups, Backup{Timestamp: ts, Items: items, IsProtected: mng.isProtected(ts)})
+		backups = append(backups, Backup{Timestamp: ts, Items: items})
 	}
 
 	sort.Slice(backups, func(i, j int) bool { return backups[i].Timestamp > backups[j].Timestamp })

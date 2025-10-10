@@ -5,7 +5,9 @@ func (mng *BackupManager) Collect() (CollectResult, error) {
 		return *mng.collectResult, nil
 	}
 
-	unprotected, err := mng.collectSnapshotsFrom(mng.dir)
+	unprotected, err := collectSnapshots(mng.dir)
 	mng.collectResult = &unprotected
+
+	collectBackups(mng.dir)
 	return unprotected, err
 }
