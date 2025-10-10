@@ -37,13 +37,13 @@ func (mng *BackupManager) collectSnapshotsFrom(dir string) (CollectResult, error
 		return CollectResult{}, nil
 	}
 
-	groups := make([]Group, 0, len(gmap))
+	backups := make([]Backup, 0, len(gmap))
 	for ts, items := range gmap {
 		sort.Slice(items, func(i, j int) bool { return items[i].BaseName < items[j].BaseName })
-		groups = append(groups, Group{Timestamp: ts, Items: items, IsProtected: mng.isProtected(ts)})
+		backups = append(backups, Backup{Timestamp: ts, Items: items, IsProtected: mng.isProtected(ts)})
 	}
 
-	sort.Slice(groups, func(i, j int) bool { return groups[i].Timestamp > groups[j].Timestamp })
+	sort.Slice(backups, func(i, j int) bool { return backups[i].Timestamp > backups[j].Timestamp })
 
 	subvolNames := make([]string, 0, len(subvolNamesMap))
 	for name := range subvolNamesMap {
@@ -52,7 +52,7 @@ func (mng *BackupManager) collectSnapshotsFrom(dir string) (CollectResult, error
 	sort.Strings(subvolNames)
 
 	return CollectResult{
-		Groups:      groups,
+		Backups:     backups,
 		SubvolNames: subvolNames,
 		TotalCount:  len(snapDir),
 	}, nil

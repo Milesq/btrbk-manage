@@ -12,7 +12,7 @@ type Model struct {
 	// Core
 	mng            snaps.BackupManager
 	Dir            string
-	Groups         []snaps.Group
+	Backups        []snaps.Backup
 	TotalSnapshots int
 
 	// General State
@@ -22,7 +22,7 @@ type Model struct {
 	// Modes flags
 	ListProtectedOnly bool
 	TrashMode         bool
-	SelectedForEdit   *snaps.Group
+	SelectedForEdit   *snaps.Backup
 
 	// SubComponents
 	form form.Model
@@ -30,15 +30,15 @@ type Model struct {
 
 func InitialModel(dir string) Model {
 	backupManager := snaps.GetManagerForDirectory(dir)
-	backups, err := backupManager.Collect()
+	info, err := backupManager.Collect()
 
 	inputs := getProtectionNoteInputs()
 
 	return Model{
-		Groups:         backups.Groups,
+		Backups:        info.Backups,
 		Err:            err,
 		Dir:            dir,
-		TotalSnapshots: backups.TotalCount,
+		TotalSnapshots: info.TotalCount,
 		mng:            backupManager,
 		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
 			BlurredButton: blurredButton,
@@ -87,26 +87,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "up", "k":
 			m.Cursor--
 			if m.Cursor < 0 {
-				m.Cursor = max(0, len(m.Groups)-1)
+				m.Cursor = max(0, len(m.Backups)-1)
 			}
 		case "down", "j":
 			m.Cursor++
-			if m.Cursor >= len(m.Groups) {
+			if m.Cursor >= len(m.Backups) {
 				m.Cursor = 0
 			}
 		case " ":
-			group := &m.Groups[m.Cursor]
-			if group.IsProtected {
-				m.Err = m.mng.FreePersistance(group.Timestamp)
+			backup := &m.Backups[m.Cursor]
+			if backup.IsProtected {
+				m.Err = m.mng.FreePersistance(backup.Timestamp)
 				m.recollect()
 			} else {
-				m.SelectedForEdit = group
+				m.SelectedForEdit = backup
 			}
 		case "enter":
-			if m.Err == nil && len(m.Groups) > 0 {
-				group := &m.Groups[m.Cursor]
-				if group.IsProtected {
-					m.SelectedForEdit = group
+			if m.Err == nil && len(m.Backups) > 0 {
+				backup := &m.Backups[m.Cursor]
+				if backup.IsProtected {
+					m.SelectedForEdit = backup
 				}
 			}
 		}
@@ -120,5 +120,5 @@ func (m *Model) recollect() {
 	backups, err := m.mng.Collect()
 	m.Err = err
 	m.TotalSnapshots = backups.TotalCount
-	m.Groups = backups.Groups
+	m.Backups = backups.Backups
 }

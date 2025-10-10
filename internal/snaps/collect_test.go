@@ -35,12 +35,12 @@ func assertCollectResults(t *testing.T, result CollectResult, err error, expecte
 	if result.TotalCount != expectedCount {
 		t.Errorf("collectSnapshotsFrom() count = %d, want %d", result.TotalCount, expectedCount)
 	}
-	if expectedGroupCount == 0 && result.Groups != nil {
-		t.Errorf("collectSnapshotsFrom() groups = %v, want nil", result.Groups)
+	if expectedGroupCount == 0 && result.Backups != nil {
+		t.Errorf("collectSnapshotsFrom() groups = %v, want nil", result.Backups)
 		return
 	}
-	if len(result.Groups) != expectedGroupCount {
-		t.Errorf("collectSnapshotsFrom() groups length = %d, want %d", len(result.Groups), expectedGroupCount)
+	if len(result.Backups) != expectedGroupCount {
+		t.Errorf("collectSnapshotsFrom() groups length = %d, want %d", len(result.Backups), expectedGroupCount)
 	}
 }
 

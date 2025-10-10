@@ -4,14 +4,15 @@ type Snapshot struct {
 	Timestamp, SubvolName, BaseName string
 }
 
-type Group struct {
-	Timestamp   string
-	Items       []Snapshot
-	IsProtected bool
+type Backup struct {
+	Timestamp      string
+	Items          []Snapshot
+	IsProtected    bool
+	ProtectionNote ProtectionNote
 }
 
 type CollectResult struct {
-	Groups      []Group
+	Backups     []Backup
 	SubvolNames []string
 	TotalCount  int
 }

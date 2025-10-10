@@ -75,7 +75,7 @@ func (mng *BackupManager) restoreFromTrash(timestamp string) error {
 
 func (mng *BackupManager) persistBackup(timestamp string) error {
 	errSetupMeta := mng.setupSubvolumeMeta(timestamp)
-	backups, errCollect := mng.Collect()
+	snapCollection, errCollect := mng.Collect()
 
 	err := errors.Join(errSetupMeta, errCollect)
 	if err != nil {
@@ -84,11 +84,11 @@ func (mng *BackupManager) persistBackup(timestamp string) error {
 
 	metaTimestampDir := filepath.Join(mng.dir, ".meta", timestamp)
 
-	if len(backups.SubvolNames) == 0 {
+	if len(snapCollection.SubvolNames) == 0 {
 		return fmt.Errorf("no backups found to protect at timestamp %s", timestamp)
 	}
 
-	for _, subvolName := range backups.SubvolNames {
+	for _, subvolName := range snapCollection.SubvolNames {
 		srcPath := filepath.Join(mng.dir, subvolName+"."+timestamp)
 		dstPath := filepath.Join(metaTimestampDir, subvolName)
 

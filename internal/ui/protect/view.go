@@ -24,7 +24,7 @@ func (m Model) View() string {
 		return fmt.Sprintf("Error: %v\n\nDir: %s\nPress q to quit.\n", m.Err, m.Dir)
 	}
 	var b strings.Builder
-	title := fmt.Sprintf("Btrbk backups in %s  —  %d backups, %d snapshots\n", m.Dir, len(m.Groups), m.TotalSnapshots)
+	title := fmt.Sprintf("Btrbk backups in %s  —  %d backups, %d snapshots\n", m.Dir, len(m.Backups), m.TotalSnapshots)
 	b.WriteString(title)
 	b.WriteString(strings.Repeat("─", utils.MinMax(10, len(title), 80)))
 	b.WriteString("\n\n")
@@ -39,12 +39,12 @@ func (m Model) View() string {
 }
 
 func (m Model) ViewList(b *strings.Builder) {
-	if len(m.Groups) == 0 {
+	if len(m.Backups) == 0 {
 		b.WriteString("No snapshot groups found.\n")
 		return
 	}
 
-	for i, g := range m.Groups {
+	for i, g := range m.Backups {
 		line := fmt.Sprintf("   %s", utils.PrettifyDate(g.Timestamp))
 
 		var prepends string
