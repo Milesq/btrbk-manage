@@ -1,7 +1,7 @@
 package snaps
 
 type Snapshot struct {
-	Timestamp, SubvolName, BaseName string
+	Timestamp, SubvolName string
 }
 
 type Backup struct {

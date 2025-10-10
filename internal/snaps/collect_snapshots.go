@@ -27,7 +27,6 @@ func collectSnapshots(dir string) (CollectResult, error) {
 
 		subvolNamesMap[subvolName] = struct{}{}
 		gmap[snapTimeStmp] = append(gmap[snapTimeStmp], Snapshot{
-			BaseName:   name,
 			SubvolName: subvolName,
 			Timestamp:  snapTimeStmp,
 		})
@@ -39,7 +38,7 @@ func collectSnapshots(dir string) (CollectResult, error) {
 
 	backups := make([]Backup, 0, len(gmap))
 	for ts, items := range gmap {
-		sort.Slice(items, func(i, j int) bool { return items[i].BaseName < items[j].BaseName })
+		sort.Slice(items, func(i, j int) bool { return items[i].SubvolName < items[j].SubvolName })
 		backups = append(backups, Backup{Timestamp: ts, Items: items})
 	}
 
