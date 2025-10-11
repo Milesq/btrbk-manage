@@ -31,7 +31,8 @@ clear target="meta":
     #!/usr/bin/env bash
     if [ "{{target}}" = "meta" ]; then
         sudo btrfs subvolume delete ./mnt/@snaps/.meta/*/** 2>/dev/null || true
-        rm -rf ./mnt/@snaps/.meta/*
+        sudo btrfs subvolume delete ./mnt/@snaps/.meta/.trash/*/** 2>/dev/null || true
+        rm -rf ./mnt/@snaps/.meta
     elif [ "{{target}}" = "all" ]; then
         just clear
         sudo btrfs subvolume delete ./mnt/@snaps/.meta/.trash/*/** 2>/dev/null || true
