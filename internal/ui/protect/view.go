@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	trashStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
 	focusedStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("050"))
 	blurredStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 	unpersistedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("999"))
@@ -52,9 +53,11 @@ func (m Model) ViewList(b *strings.Builder) {
 		}
 
 		if g.IsProtected {
-			b.WriteString(focusedStyle.Render("★"))
+			b.WriteString(focusedStyle.Render("★ "))
+		} else if g.IsTrashed {
+			b.WriteString(trashStyle.Render("🗑 "))
 		} else {
-			b.WriteString(" ")
+			b.WriteString("  ")
 		}
 
 		timestampStyle := lipgloss.NewStyle()
