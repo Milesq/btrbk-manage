@@ -45,29 +45,25 @@ func (m Model) ViewList(b *strings.Builder) {
 	}
 
 	for i, g := range m.Backups {
-		line := fmt.Sprintf("   %s", utils.PrettifyDate(g.Timestamp))
-
-		var prepends string
-		var prependsRealLength int
-
-		prependsRealLength += 2
 		if i == m.Cursor {
-			prepends += focusedStyle.Render("> ")
+			b.WriteString(focusedStyle.Render("> "))
 		} else {
-			prepends += "  "
+			b.WriteString("  ")
 		}
 
-		prependsRealLength++
 		if g.IsProtected {
-			prepends += focusedStyle.Render("★")
+			b.WriteString(focusedStyle.Render("★"))
 		} else {
-			prepends += " "
+			b.WriteString(" ")
 		}
+
 		timestampStyle := lipgloss.NewStyle()
 		if g.IsProtected {
 			timestampStyle = unpersistedStyle
 		}
-		b.WriteString(prepends + timestampStyle.Render(line[prependsRealLength:]) + "\n")
+
+		b.WriteString(timestampStyle.Render(utils.PrettifyDate(g.Timestamp)))
+		b.WriteRune('\n')
 	}
 
 	dot := focusedStyle.Render(" • ")
