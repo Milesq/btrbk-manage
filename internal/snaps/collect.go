@@ -11,14 +11,17 @@ func (mng *BackupManager) Collect() (CollectResult, error) {
 		return *mng.collectResult, nil
 	}
 
-	backups, timestampBackupMap, err := collectBackups(filepath.Join(mng.dir, ".meta"))
-	unprotected, errSnaps := collectSnapshots(mng.dir, timestampBackupMap)
+	timestampsToSkipMap := make(map[string]struct{})
+	backups, err := collectBackups(filepath.Join(mng.dir, ".meta"), &timestampsToSkipMap, Backup{IsProtected: true})
+	trashed, errTrash := collectBackups(filepath.Join(mng.dir, ".meta/.trash"), &timestampsToSkipMap, Backup{IsTrashed: true})
+	unprotected, errSnaps := collectSnapshots(mng.dir, timestampsToSkipMap)
 
-	if err = errors.Join(err, errSnaps); err != nil {
+	if err = errors.Join(err, errTrash, errSnaps); err != nil {
 		return CollectResult{}, err
 	}
 
-	allBackups := append(backups, unprotected.Backups...)
+	allBackups := append(backups, trashed...)
+	allBackups = append(allBackups, unprotected.Backups...)
 
 	sort.Slice(allBackups, func(i, j int) bool {
 		return allBackups[i].Timestamp > allBackups[j].Timestamp

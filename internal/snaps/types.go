@@ -10,6 +10,7 @@ type Backup struct {
 	Timestamp      string
 	Items          []Snapshot
 	IsProtected    bool
+	IsTrashed      bool
 	ProtectionNote ProtectionNote
 }
 

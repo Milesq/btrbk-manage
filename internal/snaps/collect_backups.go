@@ -8,12 +8,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func collectBackups(dir string) ([]Backup, map[string]struct{}, error) {
-	subvolNamesMap := make(map[string]struct{})
-
+func collectBackups(dir string, timestampsMap *map[string]struct{}, backupOpts Backup) ([]Backup, error) {
 	metaDir, err := os.ReadDir(dir)
 	if err != nil {
-		return []Backup{}, nil, err
+		return []Backup{}, nil
 	}
 
 	backups := make([]Backup, 0, len(metaDir))
@@ -32,7 +30,9 @@ func collectBackups(dir string) ([]Backup, map[string]struct{}, error) {
 			errs = append(errs, err)
 			continue
 		}
-		subvolNamesMap[timestamp] = struct{}{}
+		if timestampsMap != nil {
+			(*timestampsMap)[timestamp] = struct{}{}
+		}
 
 		items := make([]Snapshot, 0)
 		for _, link := range snapLinks {
@@ -59,10 +59,11 @@ func collectBackups(dir string) ([]Backup, map[string]struct{}, error) {
 		backups = append(backups, Backup{
 			Timestamp:      timestamp,
 			Items:          items,
-			IsProtected:    true,
+			IsProtected:    backupOpts.IsProtected,
+			IsTrashed:      backupOpts.IsTrashed,
 			ProtectionNote: protectionNote,
 		})
 	}
 
-	return backups, subvolNamesMap, errors.Join(errs...)
+	return backups, errors.Join(errs...)
 }
