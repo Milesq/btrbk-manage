@@ -14,5 +14,4 @@ type Backup struct {
 type CollectResult struct {
 	Backups     []Backup
 	SubvolNames []string
-	TotalCount  int
 }

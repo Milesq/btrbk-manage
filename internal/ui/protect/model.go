@@ -10,10 +10,9 @@ import (
 
 type Model struct {
 	// Core
-	mng            snaps.BackupManager
-	Dir            string
-	Backups        []snaps.Backup
-	TotalSnapshots int
+	mng     snaps.BackupManager
+	Dir     string
+	Backups []snaps.Backup
 
 	// General State
 	Err    error
@@ -35,11 +34,10 @@ func InitialModel(dir string) Model {
 	inputs := getProtectionNoteInputs()
 
 	return Model{
-		Backups:        info.Backups,
-		Err:            err,
-		Dir:            dir,
-		TotalSnapshots: info.TotalCount,
-		mng:            backupManager,
+		Backups: info.Backups,
+		Err:     err,
+		Dir:     dir,
+		mng:     backupManager,
 		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
 			BlurredButton: blurredButton,
 			FocusedButton: focusedButton,
@@ -119,6 +117,5 @@ func (m *Model) recollect() {
 	m.mng.ClearCache()
 	backups, err := m.mng.Collect()
 	m.Err = err
-	m.TotalSnapshots = backups.TotalCount
 	m.Backups = backups.Backups
 }

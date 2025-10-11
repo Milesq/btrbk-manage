@@ -53,7 +53,6 @@ func collectSnapshots(dir string) (CollectResult, error) {
 	return CollectResult{
 		Backups:     backups,
 		SubvolNames: subvolNames,
-		TotalCount:  len(snapDir),
 	}, nil
 
 }
