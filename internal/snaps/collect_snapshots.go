@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-func collectSnapshots(dir string) (CollectResult, error) {
+func collectSnapshots(dir string, toSkip map[string]struct{}) (CollectResult, error) {
 	gmap := make(map[string][]Snapshot)
 	subvolNamesMap := make(map[string]struct{})
 
@@ -22,6 +22,10 @@ func collectSnapshots(dir string) (CollectResult, error) {
 		subvolName, snapTimeStmp, ok := detectSnapshot(name)
 
 		if !ok {
+			continue
+		}
+
+		if _, skip := toSkip[snapTimeStmp]; skip {
 			continue
 		}
 

@@ -12,6 +12,7 @@ type Backup struct {
 }
 
 type CollectResult struct {
-	Backups     []Backup
-	SubvolNames []string
+	Backups                  []Backup
+	SubvolNames              []string
+	ProtectedN, UnprotectedN int
 }
