@@ -20,7 +20,7 @@ func collectBackups(dir string) ([]Backup, map[string]struct{}, error) {
 
 	var errs []error
 	for _, entry := range metaDir {
-		if !entry.IsDir() {
+		if !entry.IsDir() || entry.Name() == ".trash" {
 			continue
 		}
 
