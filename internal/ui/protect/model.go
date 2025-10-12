@@ -18,13 +18,14 @@ type Model struct {
 	Backups []snaps.Backup
 
 	// General State
-	Err    error
-	Cursor int
+	Err             error
+	Cursor          int
+	SelectedForEdit snaps.Backup
 
 	// Modes flags
 	ListProtectedOnly bool
 	TrashMode         bool
-	SelectedForEdit   *snaps.Backup
+	IsEdit            bool
 
 	// SubComponents
 	form form.Model
@@ -56,7 +57,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
-	if m.SelectedForEdit != nil {
+	if m.IsEdit {
 		var formCmd tea.Cmd
 		var meta *components.UpdateMeta
 		m.form, formCmd, meta = m.form.Update(msg)
@@ -80,7 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.recollect()
 		}
-		m.SelectedForEdit = nil
+		m.IsEdit = false
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
@@ -96,19 +97,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Cursor = 0
 			}
 		case " ":
-			backup := &m.Backups[m.Cursor]
+			backup := m.Backups[m.Cursor]
 			if backup.IsProtected {
 				m.Err = m.mng.FreePersistance(backup.Timestamp)
 				m.recollect()
 			} else {
 				m.SelectedForEdit = backup
+				m.IsEdit = true
 				m.populateFormWithNote(backup.ProtectionNote)
 			}
 		case "enter":
 			if m.Err == nil && len(m.Backups) > 0 {
-				backup := &m.Backups[m.Cursor]
+				backup := m.Backups[m.Cursor]
 				if backup.IsProtected {
 					m.SelectedForEdit = backup
+					m.IsEdit = true
 					m.populateFormWithNote(backup.ProtectionNote)
 				}
 			}

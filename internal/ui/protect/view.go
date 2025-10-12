@@ -30,7 +30,7 @@ func (m Model) View() string {
 	b.WriteString(strings.Repeat("─", utils.MinMax(10, len(title), 80)))
 	b.WriteString("\n\n")
 
-	if m.SelectedForEdit != nil {
+	if m.IsEdit {
 		b.WriteString(m.form.View())
 	} else {
 		m.ViewList(&b)
