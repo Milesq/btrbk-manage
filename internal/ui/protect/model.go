@@ -102,12 +102,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.recollect()
 			} else {
 				m.SelectedForEdit = backup
+				m.populateFormWithNote(backup.ProtectionNote)
 			}
 		case "enter":
 			if m.Err == nil && len(m.Backups) > 0 {
 				backup := &m.Backups[m.Cursor]
 				if backup.IsProtected {
 					m.SelectedForEdit = backup
+					m.populateFormWithNote(backup.ProtectionNote)
 				}
 			}
 		}
@@ -124,6 +126,19 @@ func (m *Model) recollect() {
 }
 
 const building_params_n int = 3
+
+func (m *Model) populateFormWithNote(note snaps.ProtectionNote) {
+	if len(m.form.Inputs) < 3 {
+		fmt.Println("skip")
+		return
+	}
+
+	m.form.Inputs[0].SetValue(note.Note)
+	m.form.Inputs[1].SetValue(note.Reason)
+	if len(note.Tags) > 0 {
+		m.form.Inputs[2].SetValue(strings.Join(note.Tags, ", "))
+	}
+}
 
 func (m *Model) getProtectionNote(values []string) (note snaps.ProtectionNote, err error) {
 	if len(values) != building_params_n {
