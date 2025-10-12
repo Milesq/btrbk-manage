@@ -91,21 +91,7 @@ func (m Model) ViewList(b *strings.Builder) {
 		b.WriteRune('\n')
 	}
 
-	dot := focusedStyle.Render(" • ")
-	fmt.Fprint(
-		b,
-		"\n↑/↓ ",
-		blurredStyle.Render("to move"),
-		dot,
-		"Space ",
-		blurredStyle.Render("to un/protect backup"),
-		dot,
-		"Enter ",
-		blurredStyle.Render("to edit note"),
-		dot,
-		"q ",
-		blurredStyle.Render("to quit\n"),
-	)
+	writeHelpMessage(b)
 }
 
 func getProtectionNoteInputs() []textinput.Model {
