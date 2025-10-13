@@ -31,15 +31,11 @@ type Model struct {
 
 func InitialModel(dir string) Model {
 	backupManager := snaps.GetManagerForDirectory(dir)
-	info, err := backupManager.Collect()
-
 	inputs := getProtectionNoteInputs()
 
-	return Model{
-		backups: info.Backups,
-		Err:     err,
-		dir:     dir,
-		mng:     backupManager,
+	m := Model{
+		dir: dir,
+		mng: backupManager,
 		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
 			BlurredButton: blurredButton,
 			FocusedButton: focusedButton,
@@ -47,6 +43,8 @@ func InitialModel(dir string) Model {
 			FocuseStyle:   focusedStyle,
 		})),
 	}
+	m.recollect()
+	return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -66,5 +64,20 @@ func (m *Model) recollect() {
 	m.mng.ClearCache()
 	backups, err := m.mng.Collect()
 	m.Err = err
-	m.backups = backups.Backups
+
+	filtered := []snaps.Backup{}
+
+	for _, backup := range backups.Backups {
+		if m.trashMode && !backup.IsTrashed {
+			continue
+		}
+
+		if m.listProtectedOnly && !backup.IsProtected {
+			continue
+		}
+
+		filtered = append(filtered, backup)
+	}
+
+	m.backups = filtered
 }

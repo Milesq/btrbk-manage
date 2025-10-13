@@ -47,6 +47,24 @@ func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 				m.selected = m.backups[m.cursor]
 				m.isConfirmingDelete = true
 			}
+		case "t":
+			m.trashMode = !m.trashMode
+			m.cursor = 0
+			m.recollect()
+		case "m":
+			m.listProtectedOnly = !m.listProtectedOnly
+			m.cursor = 0
+			m.recollect()
+		case "D":
+			if m.trashMode && len(m.backups) > 0 {
+				for _, backup := range m.backups {
+					if err := m.mng.RemoveFromTrash(backup); err != nil {
+						m.Err = err
+						break
+					}
+				}
+				m.recollect()
+			}
 		}
 	}
 

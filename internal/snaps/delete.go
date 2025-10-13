@@ -58,3 +58,12 @@ func (mng *BackupManager) DeletePhysicalBackup(dir string) error {
 
 	return nil
 }
+
+func (mng *BackupManager) RemoveFromTrash(backup Backup) error {
+	if !backup.IsTrashed {
+		return fmt.Errorf("backup %s is not in trash", backup.Timestamp)
+	}
+
+	trashDir := filepath.Join(mng.dir, ".meta/.trash", backup.Timestamp)
+	return mng.DeletePhysicalBackup(trashDir)
+}

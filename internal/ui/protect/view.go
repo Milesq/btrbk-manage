@@ -23,7 +23,7 @@ func (m Model) View() string {
 		b.WriteString(m.form.View())
 	} else {
 		m.viewList(&b)
-		writeHelpMessage(&b)
+		m.writeHelpMessage(&b)
 	}
 
 	return b.String()

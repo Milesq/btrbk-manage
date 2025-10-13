@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func writeHelpMessage(w io.Writer) {
+func (m Model) writeHelpMessage(w io.Writer) {
 	dot := focusedStyle.Render(" • ")
 
 	fmt.Fprint(
@@ -25,4 +25,24 @@ func writeHelpMessage(w io.Writer) {
 		"q ",
 		blurredStyle.Render("to quit\n"),
 	)
+
+	fmt.Fprint(
+		w,
+		"t ",
+		blurredStyle.Render("to see trash"),
+		dot,
+
+		"m ",
+		blurredStyle.Render("to list manual only"),
+	)
+
+	if m.trashMode {
+		fmt.Fprint(
+			w,
+			dot,
+
+			"D ",
+			blurredStyle.Render("to remove all trashed backups"),
+		)
+	}
 }
