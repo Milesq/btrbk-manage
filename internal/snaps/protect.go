@@ -12,14 +12,10 @@ import (
 )
 
 func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
-	if mng.isProtected(timestamp) {
-		return fmt.Errorf("backup at timestamp %s is already protected", timestamp)
-	}
-
 	var err error
 	if mng.isInTrash(timestamp) {
 		err = mng.restoreFromTrash(timestamp)
-	} else {
+	} else if !mng.isProtected(timestamp) {
 		err = mng.persistBackup(timestamp)
 	}
 	if err != nil {
