@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"milesq.dev/btrbk-manage/pkg/components"
+	"milesq.dev/btrbk-manage/pkg/router"
 )
 
 type Model struct {
@@ -31,8 +31,8 @@ func (m Model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *components.UpdateMeta) {
-	PassThroughMsg := &components.UpdateMeta{PassThrough: true}
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
+	PassThroughMsg := &router.UpdateMeta{PassThrough: true}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
