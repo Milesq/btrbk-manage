@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	emptyStyle       = lipgloss.NewStyle()
 	trashStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
 	focusedStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("050"))
 	blurredStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
