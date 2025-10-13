@@ -30,5 +30,8 @@ func (m *Model) handleSave(values []string) {
 		return
 	}
 	m.Err = m.mng.Protect(m.selected.Timestamp, note)
+	if m.Err != nil {
+		return
+	}
 	m.recollect()
 }
