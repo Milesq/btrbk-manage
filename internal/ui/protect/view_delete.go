@@ -7,7 +7,7 @@ import (
 )
 
 func (m Model) viewDeleteConfirmation(b *strings.Builder) {
-	backup := m.BackupToDelete
+	backup := m.selected
 
 	b.WriteString(warningStyle.Render("⚠ DELETE BACKUP"))
 	b.WriteString("\n\n")

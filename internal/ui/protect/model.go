@@ -18,9 +18,9 @@ type Model struct {
 	Backups []snaps.Backup
 
 	// General State
-	Err             error
-	Cursor          int
-	SelectedForEdit snaps.Backup
+	Err      error
+	Cursor   int
+	selected snaps.Backup
 
 	// Modes flags
 	ListProtectedOnly bool
