@@ -23,24 +23,35 @@ func (m Model) writeHelpMessage(w io.Writer) {
 		dot,
 
 		"q ",
-		blurredStyle.Render("to quit\n"),
+		blurredStyle.Render("to quit"),
 	)
+
+	fmt.Fprint(w, "\n\n")
+
+	tStyle := emptyStyle
+	if m.trashMode {
+		tStyle = activeFilterStyle
+	}
+
+	mStyle := emptyStyle
+	if m.listProtectedOnly {
+		mStyle = activeFilterStyle
+	}
 
 	fmt.Fprint(
 		w,
-		"t ",
-		blurredStyle.Render("to see trash"),
+		tStyle.Render("t"),
+		blurredStyle.Render(" to see trash"),
 		dot,
 
-		"m ",
-		blurredStyle.Render("to list manual only"),
+		mStyle.Render("m"),
+		blurredStyle.Render(" to list manual only"),
 	)
 
 	if m.trashMode {
 		fmt.Fprint(
 			w,
-			dot,
-
+			"\n\n",
 			"D ",
 			blurredStyle.Render("to remove all trashed backups"),
 		)

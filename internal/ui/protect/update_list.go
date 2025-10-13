@@ -49,10 +49,16 @@ func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 			}
 		case "t":
 			m.trashMode = !m.trashMode
+			if m.trashMode {
+				m.listProtectedOnly = false
+			}
 			m.cursor = 0
 			m.recollect()
 		case "m":
 			m.listProtectedOnly = !m.listProtectedOnly
+			if m.listProtectedOnly {
+				m.trashMode = false
+			}
 			m.cursor = 0
 			m.recollect()
 		case "D":
@@ -63,6 +69,7 @@ func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 						break
 					}
 				}
+				m.trashMode = false
 				m.recollect()
 			}
 		}
