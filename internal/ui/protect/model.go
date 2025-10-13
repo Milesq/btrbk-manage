@@ -1,14 +1,11 @@
 package protect
 
 import (
-	"fmt"
-	"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"milesq.dev/btrbk-manage/internal/snaps"
-	"milesq.dev/btrbk-manage/pkg/components"
 	"milesq.dev/btrbk-manage/pkg/form"
+	"milesq.dev/btrbk-manage/pkg/router"
 )
 
 type Model struct {
@@ -23,9 +20,10 @@ type Model struct {
 	selected snaps.Backup
 
 	// Modes flags
-	ListProtectedOnly bool
-	TrashMode         bool
-	IsEdit            bool
+	ListProtectedOnly  bool
+	TrashMode          bool
+	IsEdit             bool
+	IsConfirmingDelete bool
 
 	// SubComponents
 	form form.Model
@@ -56,69 +54,12 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-	if m.IsEdit {
-		var formCmd tea.Cmd
-		var meta *components.UpdateMeta
-		m.form, formCmd, meta = m.form.Update(msg)
-
-		if meta == nil || !meta.PassThrough {
-			return m, formCmd
-		}
-		cmds = append(cmds, formCmd)
-	}
-
-	switch msg := msg.(type) {
-	case form.ExitMsg:
-		if msg.Reason == form.UserSaved {
-			note, err := m.getProtectionNote(msg.Values)
-			if err != nil {
-				m.Err = err
-				return m, tea.Batch(cmds...)
-			}
-
-			m.Err = m.mng.Protect(m.SelectedForEdit.Timestamp, note)
-
-			m.recollect()
-		}
-		m.IsEdit = false
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q", "esc":
-			cmds = append(cmds, tea.Quit)
-		case "up", "k":
-			m.Cursor--
-			if m.Cursor < 0 {
-				m.Cursor = max(0, len(m.Backups)-1)
-			}
-		case "down", "j":
-			m.Cursor++
-			if m.Cursor >= len(m.Backups) {
-				m.Cursor = 0
-			}
-		case " ":
-			backup := m.Backups[m.Cursor]
-			if backup.IsProtected {
-				m.Err = m.mng.FreePersistance(backup.Timestamp)
-				m.recollect()
-			} else {
-				m.SelectedForEdit = backup
-				m.IsEdit = true
-				m.populateFormWithNote(backup.ProtectionNote)
-			}
-		case "enter":
-			if m.Err == nil && len(m.Backups) > 0 {
-				backup := m.Backups[m.Cursor]
-				if backup.IsProtected {
-					m.SelectedForEdit = backup
-					m.IsEdit = true
-					m.populateFormWithNote(backup.ProtectionNote)
-				}
-			}
-		}
-	}
-
-	return m, tea.Batch(cmds...)
+	updatedModel, cmd := router.NewRouter(m).
+		When(m.IsConfirmingDelete, m.handleDeleteConfirmation).
+		When(m.IsEdit, m.handleForm).
+		Default(m.handleList).
+		Update(msg)
+	return updatedModel, cmd
 }
 
 func (m *Model) recollect() {
