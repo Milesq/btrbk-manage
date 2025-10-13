@@ -32,12 +32,11 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
-	PassThroughMsg := &router.UpdateMeta{PassThrough: true}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
-			return m, nil, PassThroughMsg
+			return m, nil, router.PassThrough()
 		case "esc":
 			if m.clearOnExit {
 				m.Clear()
@@ -85,7 +84,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 			return m, cmd, nil
 		}
 	default:
-		return m, nil, PassThroughMsg
+		return m, nil, router.PassThrough()
 	}
 
 	cmd := m.updateInputs(msg)
