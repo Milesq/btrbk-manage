@@ -42,7 +42,6 @@ const building_params_n int = 3
 
 func (m *Model) populateFormWithNote(note snaps.ProtectionNote) {
 	if len(m.form.Inputs) < 3 {
-		fmt.Println("skip")
 		return
 	}
 

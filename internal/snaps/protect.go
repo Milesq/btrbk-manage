@@ -18,10 +18,8 @@ func (mng *BackupManager) Protect(timestamp string, note ProtectionNote) error {
 
 	var err error
 	if mng.isInTrash(timestamp) {
-		fmt.Println("Restoring from trash:", timestamp)
 		err = mng.restoreFromTrash(timestamp)
 	} else {
-		fmt.Println("new protect:", timestamp)
 		err = mng.persistBackup(timestamp)
 	}
 	if err != nil {
