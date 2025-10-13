@@ -132,7 +132,16 @@ func (m Model) GetValues() []string {
 }
 
 func (m *Model) Clear() {
+	m.focusIndex = 0
 	for i := range m.Inputs {
-		m.Inputs[i].SetValue("")
+		if i == 0 {
+			m.Inputs[i].Focus()
+			m.Inputs[i].PromptStyle = m.styles.FocuseStyle
+			m.Inputs[i].TextStyle = m.styles.FocuseStyle
+		} else {
+			m.Inputs[i].Blur()
+			m.Inputs[i].PromptStyle = m.styles.BlurStyle
+			m.Inputs[i].TextStyle = m.styles.BlurStyle
+		}
 	}
 }
