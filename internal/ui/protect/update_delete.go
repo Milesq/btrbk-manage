@@ -13,7 +13,7 @@ func (m Model) handleDeleteConfirmation(msg tea.Msg) (Model, tea.Cmd, *router.Up
 
 	switch keyMsg.String() {
 	case "y", "Y":
-		// m.Err = m.mng.Delete(m.selected)
+		m.Err = m.mng.Delete(m.selected)
 		if m.Err == nil {
 			m.recollect()
 			if m.cursor >= len(m.backups) && m.cursor > 0 {
