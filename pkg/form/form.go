@@ -32,59 +32,59 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return m, nil, router.PassThrough()
-		case "esc":
+	keyMsg, ok := msg.(tea.KeyMsg)
+	if !ok {
+		return m, nil, router.PassThrough()
+	}
+
+	switch keyMsg.String() {
+	case "ctrl+c":
+		return m, nil, router.PassThrough()
+	case "esc":
+		if m.clearOnExit {
+			m.Clear()
+		}
+		return m, finished(UserCanceled, nil), nil
+	case "tab", "shift+tab", "enter", "up", "down":
+		s := keyMsg.String()
+
+		// Did the user press enter while the submit button was focused?
+		// If so, exit.
+		if s == "enter" && m.focusIndex == len(m.Inputs) {
+			values := m.GetValues()
 			if m.clearOnExit {
 				m.Clear()
 			}
-			return m, finished(UserCanceled, nil), nil
-		case "tab", "shift+tab", "enter", "up", "down":
-			s := msg.String()
-
-			// Did the user press enter while the submit button was focused?
-			// If so, exit.
-			if s == "enter" && m.focusIndex == len(m.Inputs) {
-				values := m.GetValues()
-				if m.clearOnExit {
-					m.Clear()
-				}
-				return m, finished(UserSaved, values), nil
-			}
-
-			// Cycle indexes
-			if s == "up" || s == "shift+tab" {
-				m.focusIndex--
-			} else {
-				m.focusIndex++
-			}
-
-			if m.focusIndex > len(m.Inputs) {
-				m.focusIndex = 0
-			} else if m.focusIndex < 0 {
-				m.focusIndex = len(m.Inputs)
-			}
-
-			var cmd tea.Cmd
-			for i := range m.Inputs {
-				if i == m.focusIndex {
-					cmd = m.Inputs[i].Focus()
-					m.Inputs[i].PromptStyle = m.styles.FocuseStyle
-					m.Inputs[i].TextStyle = m.styles.FocuseStyle
-				} else {
-					m.Inputs[i].Blur()
-					m.Inputs[i].PromptStyle = m.styles.BlurStyle
-					m.Inputs[i].TextStyle = m.styles.BlurStyle
-				}
-			}
-
-			return m, cmd, nil
+			return m, finished(UserSaved, values), nil
 		}
-	default:
-		return m, nil, router.PassThrough()
+
+		// Cycle indexes
+		if s == "up" || s == "shift+tab" {
+			m.focusIndex--
+		} else {
+			m.focusIndex++
+		}
+
+		if m.focusIndex > len(m.Inputs) {
+			m.focusIndex = 0
+		} else if m.focusIndex < 0 {
+			m.focusIndex = len(m.Inputs)
+		}
+
+		var cmd tea.Cmd
+		for i := range m.Inputs {
+			if i == m.focusIndex {
+				cmd = m.Inputs[i].Focus()
+				m.Inputs[i].PromptStyle = m.styles.FocuseStyle
+				m.Inputs[i].TextStyle = m.styles.FocuseStyle
+			} else {
+				m.Inputs[i].Blur()
+				m.Inputs[i].PromptStyle = m.styles.BlurStyle
+				m.Inputs[i].TextStyle = m.styles.BlurStyle
+			}
+		}
+
+		return m, cmd, nil
 	}
 
 	cmd := m.updateInputs(msg)
