@@ -7,13 +7,13 @@ import (
 )
 
 func (m Model) viewList(b *strings.Builder) {
-	if len(m.Backups) == 0 {
+	if len(m.backups) == 0 {
 		b.WriteString("No snapshot groups found.\n")
 		return
 	}
 
-	for i, g := range m.Backups {
-		if i == m.Cursor {
+	for i, g := range m.backups {
+		if i == m.cursor {
 			b.WriteString(focusedStyle.Render("> "))
 		} else {
 			b.WriteString("  ")

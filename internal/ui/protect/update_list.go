@@ -12,40 +12,40 @@ func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 		case "ctrl+c", "q", "esc":
 			return m, tea.Quit, nil
 		case "up", "k":
-			m.Cursor--
-			if m.Cursor < 0 {
-				m.Cursor = max(0, len(m.Backups)-1)
+			m.cursor--
+			if m.cursor < 0 {
+				m.cursor = max(0, len(m.backups)-1)
 			}
 		case "down", "j":
-			m.Cursor++
-			if m.Cursor >= len(m.Backups) {
-				m.Cursor = 0
+			m.cursor++
+			if m.cursor >= len(m.backups) {
+				m.cursor = 0
 			}
 		case " ":
-			if len(m.Backups) > 0 {
-				backup := m.Backups[m.Cursor]
+			if len(m.backups) > 0 {
+				backup := m.backups[m.cursor]
 				if backup.IsProtected {
 					m.Err = m.mng.FreePersistance(backup.Timestamp)
 					m.recollect()
 				} else {
 					m.selected = backup
-					m.IsEdit = true
+					m.isEdit = true
 					m.populateFormWithNote(backup.ProtectionNote)
 				}
 			}
 		case "enter":
-			if m.Err == nil && len(m.Backups) > 0 {
-				backup := m.Backups[m.Cursor]
+			if m.Err == nil && len(m.backups) > 0 {
+				backup := m.backups[m.cursor]
 				if backup.IsProtected {
 					m.selected = backup
-					m.IsEdit = true
+					m.isEdit = true
 					m.populateFormWithNote(backup.ProtectionNote)
 				}
 			}
 		case "d":
-			if m.Err == nil && len(m.Backups) > 0 {
-				m.selected = m.Backups[m.Cursor]
-				m.IsConfirmingDelete = true
+			if m.Err == nil && len(m.backups) > 0 {
+				m.selected = m.backups[m.cursor]
+				m.isConfirmingDelete = true
 			}
 		}
 	}

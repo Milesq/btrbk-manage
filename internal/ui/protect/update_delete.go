@@ -16,13 +16,13 @@ func (m Model) handleDeleteConfirmation(msg tea.Msg) (Model, tea.Cmd, *router.Up
 		// m.Err = m.mng.Delete(m.selected)
 		if m.Err == nil {
 			m.recollect()
-			if m.Cursor >= len(m.Backups) && m.Cursor > 0 {
-				m.Cursor = len(m.Backups) - 1
+			if m.cursor >= len(m.backups) && m.cursor > 0 {
+				m.cursor = len(m.backups) - 1
 			}
 		}
-		m.IsConfirmingDelete = false
+		m.isConfirmingDelete = false
 	case "n", "N", "esc":
-		m.IsConfirmingDelete = false
+		m.isConfirmingDelete = false
 	case "ctrl+c":
 		return m, nil, router.PassThrough()
 	}

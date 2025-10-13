@@ -9,7 +9,7 @@ import (
 func (m Model) handleForm(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 	exitMsg, isExitMsg := msg.(form.ExitMsg)
 	if isExitMsg {
-		m.IsEdit = false
+		m.isEdit = false
 
 		if exitMsg.Reason == form.UserSaved {
 			m.handleSave(exitMsg.Values)
