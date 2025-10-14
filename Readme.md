@@ -85,6 +85,21 @@ paths:
 
 ## Features
 
+### Restoring Snapshots
+
+The tool supports interactive snapshot restoration via the `r` key in the UI. After restoring btrfs snapshots, you may need to restore additional non-btrfs partitions such as the ESP (EFI System Partition) or `/boot`.
+
+#### After-Restore Script
+
+You can create an optional `after-restore.sh` script to automate the restoration of non-btrfs partitions
+
+The script is particularly useful for:
+- Restoring ESP/boot partitions
+- Syncing bootloader configurations
+- Restoring any other non-btrfs filesystems that need to stay in sync with your snapshots
+
+**Example:** [assets/after-restore.sh](assets/after-restore.sh)
+
 ### Deleting Snaps
 
 ### Protecting Snaps
