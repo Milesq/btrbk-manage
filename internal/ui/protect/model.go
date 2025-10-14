@@ -17,15 +17,17 @@ type Model struct {
 	cfg     *app.Config
 
 	// General State
-	Err      error
-	cursor   int
-	selected snaps.Backup
+	Err         error
+	cursor      int
+	selected    snaps.Backup
+	subvolNames []string
 
 	// Modes flags
-	listProtectedOnly  bool
-	trashMode          bool
-	isEdit             bool
-	isConfirmingDelete bool
+	listProtectedOnly              bool
+	trashMode                      bool
+	isEdit                         bool
+	isConfirmingDelete             bool
+	isChoosingSubvolumesForRestore bool
 
 	// SubComponents
 	form form.Model
@@ -71,6 +73,8 @@ func (m *Model) recollect() {
 	m.Err = err
 
 	filtered := []snaps.Backup{}
+
+	m.subvolNames = backups.SubvolNames
 
 	for _, backup := range backups.Backups {
 		if m.trashMode && !backup.IsTrashed {
