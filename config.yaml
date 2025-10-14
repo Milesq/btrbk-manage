@@ -1,0 +1,12 @@
+btrbk_config_file: ./btrbk.conf
+default_subvols_restore_list:
+    - "@"
+
+old_format: "{{.SubvolName}}.old"
+# old_format: "old/{{.SubvolName}}.{{.Timestamp}}"
+
+paths:
+    snaps: ./mnt/@snaps
+    target: ./mnt
+    # meta: ./mnt/@snaps/.meta
+    # meta_trash: ./mnt/@snaps/.meta/.trash
