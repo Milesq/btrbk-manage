@@ -27,3 +27,24 @@ func SubvolDelete(subvolPath string) error {
 
 	return nil
 }
+
+func Snapshot(source, dest string, ro bool) error {
+	var stderr bytes.Buffer
+	program := "btrfs"
+	args := []string{"subvolume", "snapshot"}
+
+	if ro {
+		args = append(args, "-r")
+	}
+
+	args = append(args, source, dest)
+
+	cmd := exec.Command(program, args...)
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to create btrfs snapshot from %s to %s: %w, stderr: %s", source, dest, err, stderr.String())
+	}
+
+	return nil
+}
