@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"milesq.dev/btrbk-manage/internal/utils"
+	"milesq.dev/btrbk-manage/internal/btrfs"
 )
 
 func (mng *BackupManager) Delete(backup Backup) error {
@@ -30,7 +30,7 @@ func (mng *BackupManager) Delete(backup Backup) error {
 func (mng *BackupManager) DeleteVirtualBackup(backup Backup) error {
 	for _, item := range backup.Items {
 		subvolPath := filepath.Join(mng.dir, item.SubvolName+"."+item.Timestamp)
-		if err := utils.BtrfsDelete(subvolPath); err != nil {
+		if err := btrfs.SubvolDelete(subvolPath); err != nil {
 			return fmt.Errorf("failed to delete virtual backup %s: %w", item.SubvolName, err)
 		}
 	}
@@ -46,7 +46,7 @@ func (mng *BackupManager) DeletePhysicalBackup(dir string) error {
 	for _, entry := range entries {
 		if entry.IsDir() {
 			subvolPath := filepath.Join(dir, entry.Name())
-			if err := utils.BtrfsDelete(subvolPath); err != nil {
+			if err := btrfs.SubvolDelete(subvolPath); err != nil {
 				return fmt.Errorf("failed to delete subvolume %s: %w", subvolPath, err)
 			}
 		}

@@ -1,4 +1,4 @@
-package utils
+package btrfs
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"milesq.dev/btrbk-manage/internal"
 )
 
-func BtrfsDelete(subvolPath string) error {
+func SubvolDelete(subvolPath string) error {
 	var stderr bytes.Buffer
 	program := "btrfs"
 	args := []string{"subvolume", "delete", subvolPath}
