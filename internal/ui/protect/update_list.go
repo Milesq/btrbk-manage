@@ -72,6 +72,11 @@ func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 				m.trashMode = false
 				m.recollect()
 			}
+		case "r":
+			if m.Err == nil && len(m.backups) > 0 {
+				backup := m.backups[m.cursor]
+				m.Err = m.mng.Restore(backup)
+			}
 		}
 	}
 

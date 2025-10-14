@@ -18,6 +18,10 @@ func (m Model) writeHelpMessage(w io.Writer) {
 		blurredStyle.Render("to edit note"),
 		dot,
 
+		"r ",
+		blurredStyle.Render("to restore"),
+		dot,
+
 		"d ",
 		blurredStyle.Render("to delete"),
 		dot,
