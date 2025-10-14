@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"os/exec"
 
 	"milesq.dev/btrbk-manage/internal"
@@ -21,7 +20,6 @@ func BtrfsDelete(subvolPath string) error {
 
 	cmd := exec.Command(program, args...)
 	cmd.Stderr = &stderr
-	cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to delete btrfs subvolume %s: %w, stderr: %s", subvolPath, err, stderr.String())

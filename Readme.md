@@ -104,6 +104,8 @@ The script is particularly useful for:
 
 ### Protecting Snaps
 
+only one subvolume supported
+
 The tool creates the following metadata structure in the snapshots directory:
 ```.meta
 └── 20250909T2343

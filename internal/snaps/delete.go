@@ -17,12 +17,12 @@ func (mng *BackupManager) Delete(backup Backup) error {
 		return nil
 	}
 
-	optionalTrashDir := ""
+	dir := mng.metaDir
 	if backup.IsTrashed {
-		optionalTrashDir = ".trash"
+		dir = mng.trashDir
 	}
 
-	backupDir := filepath.Join(mng.dir, ".meta", optionalTrashDir, backup.Timestamp)
+	backupDir := filepath.Join(dir, backup.Timestamp)
 
 	return mng.DeletePhysicalBackup(backupDir)
 }
@@ -64,6 +64,6 @@ func (mng *BackupManager) RemoveFromTrash(backup Backup) error {
 		return fmt.Errorf("backup %s is not in trash", backup.Timestamp)
 	}
 
-	trashDir := filepath.Join(mng.dir, ".meta/.trash", backup.Timestamp)
+	trashDir := filepath.Join(mng.trashDir, backup.Timestamp)
 	return mng.DeletePhysicalBackup(trashDir)
 }

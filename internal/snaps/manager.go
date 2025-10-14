@@ -7,12 +7,15 @@ import (
 	"slices"
 )
 
-func GetManagerForDirectory(snapDirectory string) BackupManager {
-	return BackupManager{snapDirectory, nil, nil, nil}
+func GetManagerForDirectory(snapDirectory, metaDir, trashDir string) BackupManager {
+	return BackupManager{snapDirectory, metaDir, trashDir, nil, nil, nil}
 }
 
 type BackupManager struct {
-	dir                 string
+	dir      string
+	metaDir  string
+	trashDir string
+
 	availableSubvolumes []string
 	subvolumes          []string
 	collectResult       *CollectResult
@@ -39,6 +42,6 @@ func (mng *BackupManager) isAvailable(subvolume string) bool {
 }
 
 func (mng *BackupManager) setupSubvolumeMeta(timestamp string) error {
-	metaDir := filepath.Join(mng.dir, ".meta", timestamp)
+	metaDir := filepath.Join(mng.metaDir, timestamp)
 	return os.MkdirAll(metaDir, 0755)
 }

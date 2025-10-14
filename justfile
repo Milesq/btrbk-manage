@@ -5,7 +5,7 @@ build:
     go build -tags prod -o bin/ ./cmd/...
 
 run cmd="btrbk-manage":
-    go run ./cmd/{{cmd}}/main.go
+    go run ./cmd/{{cmd}}/main.go -c config.yaml
 
 test:
     go fmt ./...

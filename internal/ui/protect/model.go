@@ -3,6 +3,7 @@ package protect
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"milesq.dev/btrbk-manage/internal/app"
 	"milesq.dev/btrbk-manage/internal/snaps"
 	"milesq.dev/btrbk-manage/pkg/form"
 	"milesq.dev/btrbk-manage/pkg/router"
@@ -13,6 +14,7 @@ type Model struct {
 	mng     snaps.BackupManager
 	dir     string
 	backups []snaps.Backup
+	cfg     *app.Config
 
 	// General State
 	Err      error
@@ -29,13 +31,16 @@ type Model struct {
 	form form.Model
 }
 
-func InitialModel(dir string) Model {
-	backupManager := snaps.GetManagerForDirectory(dir)
+func InitialModel(cfg *app.Config) (Model, error) {
+	snapsDir := cfg.Paths.Snaps
+
+	backupManager := snaps.GetManagerForDirectory(snapsDir, cfg.Paths.Meta, cfg.Paths.MetaTrash)
 	inputs := getProtectionNoteInputs()
 
 	m := Model{
-		dir: dir,
+		dir: snapsDir,
 		mng: backupManager,
+		cfg: cfg,
 		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
 			BlurredButton: blurredButton,
 			FocusedButton: focusedButton,
@@ -44,7 +49,7 @@ func InitialModel(dir string) Model {
 		})),
 	}
 	m.recollect()
-	return m
+	return m, nil
 }
 
 func (m Model) Init() tea.Cmd {

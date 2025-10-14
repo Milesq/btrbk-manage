@@ -12,8 +12,8 @@ func (mng *BackupManager) Collect() (CollectResult, error) {
 	}
 
 	timestampsToSkipMap := make(map[string]struct{})
-	backups, err := collectBackups(filepath.Join(mng.dir, ".meta"), &timestampsToSkipMap, Backup{IsProtected: true})
-	trashed, errTrash := collectBackups(filepath.Join(mng.dir, ".meta/.trash"), &timestampsToSkipMap, Backup{IsTrashed: true})
+	backups, err := collectBackups(filepath.Join(mng.metaDir), &timestampsToSkipMap, Backup{IsProtected: true})
+	trashed, errTrash := collectBackups(filepath.Join(mng.trashDir), &timestampsToSkipMap, Backup{IsTrashed: true})
 	unprotected, errSnaps := collectSnapshots(mng.dir, timestampsToSkipMap)
 
 	if err = errors.Join(err, errTrash, errSnaps); err != nil {
