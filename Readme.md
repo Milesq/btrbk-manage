@@ -49,6 +49,22 @@ The tool can optionally use a [config.yaml](config.yaml) file to configure its b
 
 **Note:** The config file is entirely optional. If not provided, the tool will automatically detect configuration by parsing the output of `btrbk list`.
 
+### Hooks
+
+The tool supports custom hooks that execute at specific points during backup and restore operations. Hooks are automatically detected in the `hooks/` directory relative to your configuration directory.
+
+To use hooks, create executable scripts in the `hooks/` directory with the appropriate names:
+
+```bash
+hooks/
+├── pre-backup
+├── post-backup
+├── pre-restore
+└── post-restore
+```
+
+All hooks are optional. The tool will execute any hooks that are present and have executable permissions.
+
 ### Configuration File Options
 
 ```yaml
