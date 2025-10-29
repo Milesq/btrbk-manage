@@ -11,10 +11,11 @@ import (
 )
 
 func main() {
-	configPath := flag.String("c", app.DefaultConfigPath, "path to config file")
+	configPath := flag.String("c", "", "path to config file")
+	project := flag.String("p", "", "project name (reads config from /etc/btrbk-manage/config.{project}.yaml)")
 	flag.Parse()
 
-	cfg, err := app.LoadConfig(*configPath)
+	cfg, err := app.LoadConfig(*configPath, *project)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error loading config: %v\n", err)
 		os.Exit(1)

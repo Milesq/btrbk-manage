@@ -35,8 +35,15 @@ func (c *Config) String() string {
 		c.BtrbkConfigFile, c.DefaultSubvolsRestoreList, c.OldFormat, c.Paths)
 }
 
-func LoadConfig(path string) (*Config, error) {
-	cfg, err := readConfig(path)
+func LoadConfig(configPath, project string) (*Config, error) {
+	actualConfigPath := DefaultConfigPath
+	if project != "" {
+		actualConfigPath = fmt.Sprintf("/etc/btrbk-manage/config.%s.yaml", project)
+	} else if configPath != "" {
+		actualConfigPath = configPath
+	}
+
+	cfg, err := readConfig(actualConfigPath)
 	if err != nil {
 		return nil, err
 	}
