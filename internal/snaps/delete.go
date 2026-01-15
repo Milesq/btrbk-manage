@@ -30,6 +30,11 @@ func (mng *BackupManager) Delete(backup Backup) error {
 func (mng *BackupManager) DeleteVirtualBackup(backup Backup) error {
 	for _, item := range backup.Items {
 		subvolPath := filepath.Join(mng.dir, item.SubvolName+"."+item.Timestamp)
+
+		if _, err := os.Stat(subvolPath); os.IsNotExist(err) {
+			continue
+		}
+
 		if err := btrfs.SubvolDelete(subvolPath); err != nil {
 			return fmt.Errorf("failed to delete virtual backup %s: %w", item.SubvolName, err)
 		}
