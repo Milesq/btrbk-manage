@@ -1,1 +1,4 @@
-sudo rsync -aSHAX --delete --numeric-ids --human-readable --info=stats2,progress2 /mnt/fs_roots/system/@/boot/ /boot/
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo ok > "$RESTORE_PATH/restoration_complete.txt"
