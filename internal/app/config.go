@@ -13,6 +13,7 @@ import (
 const DefaultConfigPath = "/etc/btrbk-manage/config.yaml"
 
 type Config struct {
+	configPath                string
 	BtrbkConfigFile           string   `yaml:"btrbk_config_file"`
 	DefaultSubvolsRestoreList []string `yaml:"default_subvols_restore_list"`
 	OldFormat                 string   `yaml:"old_format"`
@@ -59,6 +60,7 @@ func LoadConfig(configPath, project string) (*Config, error) {
 
 func readConfig(path string) (*Config, error) {
 	var cfg Config
+	cfg.configPath = path
 	data, err := os.ReadFile(path)
 
 	if err != nil {
@@ -106,7 +108,7 @@ func (c *Config) detectMissing() error {
 	}
 
 	if c.Paths.Hooks == "" {
-		c.Paths.Hooks = path.Dir(DefaultConfigPath) + "/hooks"
+		c.Paths.Hooks = path.Dir(c.configPath) + "/hooks"
 	}
 
 	return nil
