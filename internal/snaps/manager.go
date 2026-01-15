@@ -7,14 +7,15 @@ import (
 	"slices"
 )
 
-func GetManagerForDirectory(snapDirectory, metaDir, trashDir string) BackupManager {
-	return BackupManager{snapDirectory, metaDir, trashDir, nil, nil, nil}
+func GetManagerForDirectory(snapDirectory, metaDir, trashDir, hooksDir string) BackupManager {
+	return BackupManager{snapDirectory, metaDir, trashDir, hooksDir, nil, nil, nil}
 }
 
 type BackupManager struct {
 	dir      string
 	metaDir  string
 	trashDir string
+	hooksDir string
 
 	availableSubvolumes []string
 	subvolumes          []string

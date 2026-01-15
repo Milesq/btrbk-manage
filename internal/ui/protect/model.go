@@ -34,7 +34,7 @@ type Model struct {
 func InitialModel(cfg *app.Config) (Model, error) {
 	snapsDir := cfg.Paths.Snaps
 
-	backupManager := snaps.GetManagerForDirectory(snapsDir, cfg.Paths.Meta, cfg.Paths.MetaTrash)
+	backupManager := snaps.GetManagerForDirectory(snapsDir, cfg.Paths.Meta, cfg.Paths.MetaTrash, cfg.Paths.Hooks)
 	inputs := getProtectionNoteInputs()
 
 	m := Model{

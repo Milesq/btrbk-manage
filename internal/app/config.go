@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
@@ -23,6 +24,7 @@ type Paths struct {
 	Target    string `yaml:"target"`
 	Meta      string `yaml:"meta,omitempty"`
 	MetaTrash string `yaml:"meta_trash,omitempty"`
+	Hooks     string `yaml:"hooks,omitempty"`
 }
 
 func (p Paths) String() string {
@@ -101,6 +103,10 @@ func (c *Config) detectMissing() error {
 
 	if c.Paths.MetaTrash == "" {
 		c.Paths.MetaTrash = c.Paths.Snaps + "/.meta/.trash"
+	}
+
+	if c.Paths.Hooks == "" {
+		c.Paths.Hooks = path.Dir(DefaultConfigPath) + "/hooks"
 	}
 
 	return nil
