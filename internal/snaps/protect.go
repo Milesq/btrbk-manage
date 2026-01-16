@@ -30,8 +30,8 @@ func (mng *BackupManager) ClearCache() {
 }
 
 func (mng *BackupManager) FreePersistance(timestamp string) error {
-	metaTimestampDir := filepath.Join(mng.metaDir, timestamp)
-	trashDir := filepath.Join(mng.trashDir, timestamp)
+	metaTimestampDir := filepath.Join(mng.paths.Meta, timestamp)
+	trashDir := filepath.Join(mng.paths.MetaTrash, timestamp)
 
 	if err := os.MkdirAll(filepath.Dir(trashDir), 0755); err != nil {
 		return fmt.Errorf("failed to create .trash directory: %w", err)
@@ -45,20 +45,20 @@ func (mng *BackupManager) FreePersistance(timestamp string) error {
 }
 
 func (mng *BackupManager) isProtected(timestamp string) bool {
-	metaTimestampDir := filepath.Join(mng.metaDir, timestamp)
+	metaTimestampDir := filepath.Join(mng.paths.Meta, timestamp)
 	_, err := os.Stat(metaTimestampDir)
 	return err == nil
 }
 
 func (mng *BackupManager) isInTrash(timestamp string) bool {
-	trashDir := filepath.Join(mng.trashDir, timestamp)
+	trashDir := filepath.Join(mng.paths.MetaTrash, timestamp)
 	_, err := os.Stat(trashDir)
 	return err == nil
 }
 
 func (mng *BackupManager) restoreFromTrash(timestamp string) error {
-	trashDir := filepath.Join(mng.trashDir, timestamp)
-	metaTimestampDir := filepath.Join(mng.metaDir, timestamp)
+	trashDir := filepath.Join(mng.paths.MetaTrash, timestamp)
+	metaTimestampDir := filepath.Join(mng.paths.Meta, timestamp)
 
 	if err := os.Rename(trashDir, metaTimestampDir); err != nil {
 		return fmt.Errorf("failed to restore %s from trash: %w", timestamp, err)
@@ -76,14 +76,14 @@ func (mng *BackupManager) persistBackup(timestamp string) error {
 		return err
 	}
 
-	metaTimestampDir := filepath.Join(mng.metaDir, timestamp)
+	metaTimestampDir := filepath.Join(mng.paths.Meta, timestamp)
 
 	if len(snapCollection.SubvolNames) == 0 {
 		return fmt.Errorf("no backups found to protect at timestamp %s", timestamp)
 	}
 
 	for _, subvolName := range snapCollection.SubvolNames {
-		srcPath := filepath.Join(mng.dir, subvolName+"."+timestamp)
+		srcPath := filepath.Join(mng.paths.Snaps, subvolName+"."+timestamp)
 		dstPath := filepath.Join(metaTimestampDir, subvolName)
 
 		var stderr bytes.Buffer
@@ -105,7 +105,7 @@ func (mng *BackupManager) attachNote(timestamp string, note ProtectionNote) erro
 		return fmt.Errorf("failed to marshal note to YAML: %w", err)
 	}
 
-	infoPath := filepath.Join(mng.metaDir, timestamp, "info.yaml")
+	infoPath := filepath.Join(mng.paths.Meta, timestamp, "info.yaml")
 	if err := os.WriteFile(infoPath, yamlData, 0644); err != nil {
 		return fmt.Errorf("failed to write info.yaml: %w", err)
 	}

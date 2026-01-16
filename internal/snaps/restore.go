@@ -26,7 +26,7 @@ func (mng *BackupManager) Restore(backup Backup, subvolumes []string) error {
 }
 
 func (mng *BackupManager) executeHook(name string) error {
-	hookPath := filepath.Join(mng.hooksDir, name+".sh")
+	hookPath := filepath.Join(mng.paths.Hooks, name+".sh")
 
 	if _, err := os.Stat(hookPath); os.IsNotExist(err) {
 		return nil
@@ -35,7 +35,7 @@ func (mng *BackupManager) executeHook(name string) error {
 	var stderr bytes.Buffer
 	cmd := exec.Command(hookPath)
 	cmd.Stderr = &stderr
-	cmd.Env = append(os.Environ(), fmt.Sprintf("RESTORE_PATH=%s", mng.dir))
+	cmd.Env = append(os.Environ(), fmt.Sprintf("RESTORE_PATH=%s", mng.paths.Snaps))
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to execute %s: %w, stderr: %s", hookPath, err, stderr.String())
@@ -45,7 +45,7 @@ func (mng *BackupManager) executeHook(name string) error {
 }
 
 func (mng *BackupManager) addRestorationDate(timestamp string) error {
-	infoPath := filepath.Join(mng.metaDir, timestamp, "info.yaml")
+	infoPath := filepath.Join(mng.paths.Meta, timestamp, "info.yaml")
 
 	var note ProtectionNote
 	if data, err := os.ReadFile(infoPath); err == nil {

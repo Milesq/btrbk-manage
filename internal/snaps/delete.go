@@ -17,9 +17,9 @@ func (mng *BackupManager) Delete(backup Backup) error {
 		return nil
 	}
 
-	dir := mng.metaDir
+	dir := mng.paths.Meta
 	if backup.IsTrashed {
-		dir = mng.trashDir
+		dir = mng.paths.MetaTrash
 	}
 
 	backupDir := filepath.Join(dir, backup.Timestamp)
@@ -29,7 +29,7 @@ func (mng *BackupManager) Delete(backup Backup) error {
 
 func (mng *BackupManager) DeleteVirtualBackup(backup Backup) error {
 	for _, item := range backup.Items {
-		subvolPath := filepath.Join(mng.dir, item.SubvolName+"."+item.Timestamp)
+		subvolPath := filepath.Join(mng.paths.Snaps, item.SubvolName+"."+item.Timestamp)
 
 		if _, err := os.Stat(subvolPath); os.IsNotExist(err) {
 			continue
@@ -69,6 +69,6 @@ func (mng *BackupManager) RemoveFromTrash(backup Backup) error {
 		return fmt.Errorf("backup %s is not in trash", backup.Timestamp)
 	}
 
-	trashDir := filepath.Join(mng.trashDir, backup.Timestamp)
+	trashDir := filepath.Join(mng.paths.MetaTrash, backup.Timestamp)
 	return mng.DeletePhysicalBackup(trashDir)
 }

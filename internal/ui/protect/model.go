@@ -34,13 +34,11 @@ type Model struct {
 }
 
 func InitialModel(cfg *app.Config) (Model, error) {
-	snapsDir := cfg.Paths.Snaps
-
-	backupManager := snaps.GetManagerForDirectory(snapsDir, cfg.Paths.Meta, cfg.Paths.MetaTrash, cfg.Paths.Hooks)
+	backupManager := snaps.GetBackupManager(cfg.Paths)
 	inputs := getProtectionNoteInputs()
 
 	m := Model{
-		dir: snapsDir,
+		dir: cfg.Paths.Snaps,
 		mng: backupManager,
 		cfg: cfg,
 		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
