@@ -2,6 +2,7 @@ package snaps
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v3"
+	"milesq.dev/btrbk-manage/internal/btrfs"
 )
 
 func (mng *BackupManager) Restore(backup Backup, subvolumes []string) error {
@@ -42,7 +44,53 @@ func (mng *BackupManager) Restore(backup Backup, subvolumes []string) error {
 	return nil
 }
 
-func (mng *BackupManager) executeHook(name string) error {
+func (mng *BackupManager) restoreSnapshot(snapshot Snapshot) error {
+	sourcePath, err := mng.getSnapshotPath(snapshot)
+
+	if err != nil {
+		return fmt.Errorf("failed to get snapshot path: %w", err)
+	}
+
+	targetPath := filepath.Join(mng.paths.Target, snapshot.SubvolName)
+
+	if _, err := os.Stat(targetPath); err == nil {
+		oldPath := targetPath + ".old"
+
+		if _, err := os.Stat(oldPath); err == nil {
+			if err := btrfs.SubvolDelete(oldPath); err != nil {
+				return fmt.Errorf("failed to delete existing .old subvolume: %w", err)
+			}
+		}
+
+		if err := os.Rename(targetPath, oldPath); err != nil {
+			return fmt.Errorf("failed to rename %s to %s: %w", targetPath, oldPath, err)
+		}
+	}
+
+	if err := btrfs.Snapshot(sourcePath, targetPath, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (mng *BackupManager) getSnapshotPath(snapshot Snapshot) (string, error) {
+	sourcePath := filepath.Join(mng.paths.Snaps, snapshot.SubvolName+"."+snapshot.Timestamp)
+	var err, err2 error
+
+	if _, err = os.Stat(sourcePath); err == nil {
+		return sourcePath, nil
+	}
+
+	sourcePath = filepath.Join(mng.paths.Meta, snapshot.Timestamp, snapshot.SubvolName)
+	if _, err2 = os.Stat(sourcePath); err2 == nil {
+		return sourcePath, nil
+	}
+
+	return "", errors.Join(errors.New("Cannot determine snapshot path"), err, err2)
+}
+
+func (mng *BackupManager) executeHook(name string, env []string) error {
 	hookPath := filepath.Join(mng.paths.Hooks, name+".sh")
 
 	if _, err := os.Stat(hookPath); os.IsNotExist(err) {
