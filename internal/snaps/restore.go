@@ -12,6 +12,21 @@ import (
 )
 
 func (mng *BackupManager) Restore(backup Backup, subvolumes []string) error {
+	subvolSet := make(map[string]struct{})
+	for _, sv := range subvolumes {
+		subvolSet[sv] = struct{}{}
+	}
+
+	for _, snapshot := range backup.Items {
+		if _, ok := subvolSet[snapshot.SubvolName]; len(subvolumes) > 0 && !ok {
+			continue
+		}
+
+		if err := mng.restoreSnapshot(snapshot); err != nil {
+			return fmt.Errorf("failed to restore %s: %w", snapshot.SubvolName, err)
+		}
+	}
+
 	if backup.IsProtected {
 		if err := mng.addRestorationDate(backup.Timestamp); err != nil {
 			return fmt.Errorf("failed to update restoration date: %w", err)
