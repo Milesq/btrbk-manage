@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo ok > "$RESTORE_PATH/restoration_complete.txt"
+head -c 10 /dev/random | base64 > ./mnt/@/restoration_complete.txt
