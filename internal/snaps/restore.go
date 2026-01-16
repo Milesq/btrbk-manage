@@ -18,7 +18,9 @@ func (mng *BackupManager) Restore(backup Backup, subvolumes []string) error {
 		}
 	}
 
-	if err := mng.executeHook("post-restore"); err != nil {
+	env := append(os.Environ(), fmt.Sprintf("SNAPSHOT=%s", filepath.Join(mng.paths.Snaps)))
+
+	if err := mng.executeHook("post-restore", env); err != nil {
 		return fmt.Errorf("post-restore hook failed: %w", err)
 	}
 
@@ -35,7 +37,7 @@ func (mng *BackupManager) executeHook(name string) error {
 	var stderr bytes.Buffer
 	cmd := exec.Command(hookPath)
 	cmd.Stderr = &stderr
-	cmd.Env = append(os.Environ(), fmt.Sprintf("RESTORE_PATH=%s", mng.paths.Snaps))
+	cmd.Env = env
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to execute %s: %w, stderr: %s", hookPath, err, stderr.String())
