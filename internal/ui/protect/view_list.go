@@ -39,8 +39,9 @@ func (m Model) viewList(b *strings.Builder) {
 			b.WriteString(blurredStyle.Render("—"))
 			if g.ProtectionNote.Note != "" {
 				note := g.ProtectionNote.Note
-				if len(note) > 30 {
-					note = note[:30] + "..."
+				maxNoteLen := m.maxNoteLen()
+				if len(note) > maxNoteLen {
+					note = note[:maxNoteLen] + "..."
 				}
 				b.WriteString(" ")
 				b.WriteString(blurredStyle.Render(note))
@@ -57,4 +58,11 @@ func (m Model) viewList(b *strings.Builder) {
 
 		b.WriteRune('\n')
 	}
+}
+
+func (m Model) maxNoteLen() int {
+	// Fixed width: cursor(2) + icon(2) + date(16) + separator(3) + buffer(10)
+	const fixedWidth = 33
+	available := m.width - fixedWidth
+	return utils.MinMax(10, available, 100)
 }

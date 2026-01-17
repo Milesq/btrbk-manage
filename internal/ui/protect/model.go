@@ -23,6 +23,7 @@ type Model struct {
 	cursor      int
 	selected    snaps.Backup
 	subvolNames []string
+	width       int
 
 	// Modes flags
 	listProtectedOnly              bool
@@ -60,6 +61,10 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if ws, ok := msg.(tea.WindowSizeMsg); ok {
+		m.width = ws.Width
+	}
+
 	updatedModel, cmd := router.NewRouter(m).
 		When(m.isConfirmingDelete, m.handleDeleteConfirmation).
 		When(m.isEdit, m.handleForm).
