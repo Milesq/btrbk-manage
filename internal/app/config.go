@@ -58,6 +58,10 @@ func LoadConfig(configPath, project string) (*Config, error) {
 	return cfg, nil
 }
 
+func (cfg Config) GetConfigPath() string {
+	return cfg.configPath
+}
+
 func readConfig(path string) (*Config, error) {
 	var cfg Config
 	cfg.configPath = path

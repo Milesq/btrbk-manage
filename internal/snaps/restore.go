@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -62,6 +63,7 @@ func (mng *BackupManager) restoreSnapshot(snapshot Snapshot) error {
 			}
 		}
 
+		log.Printf("Renaming existing subvolume %s to %s", targetPath, oldPath)
 		if err := os.Rename(targetPath, oldPath); err != nil {
 			return fmt.Errorf("failed to rename %s to %s: %w", targetPath, oldPath, err)
 		}

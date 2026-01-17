@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"milesq.dev/btrbk-manage/internal/app"
@@ -20,6 +21,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error loading config: %v\n", err)
 		os.Exit(1)
 	}
+
+	f, _ := tea.LogToFile(filepath.Join(cfg.GetConfigPath(), "../debug.log"), "debug")
+	defer f.Close()
 
 	model, err := protect.InitialModel(cfg)
 	if err != nil {

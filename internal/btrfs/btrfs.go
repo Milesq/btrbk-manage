@@ -3,6 +3,7 @@ package btrfs
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os/exec"
 
 	"milesq.dev/btrbk-manage/internal"
@@ -20,6 +21,8 @@ func SubvolDelete(subvolPath string) error {
 
 	cmd := exec.Command(program, args...)
 	cmd.Stderr = &stderr
+
+	log.Printf("Running: %s %v", program, args)
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to delete btrfs subvolume %s: %w, stderr: %s", subvolPath, err, stderr.String())
@@ -41,6 +44,8 @@ func Snapshot(source, dest string, ro bool) error {
 
 	cmd := exec.Command(program, args...)
 	cmd.Stderr = &stderr
+
+	log.Printf("Running: %s %v", program, args)
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to create btrfs snapshot from %s to %s: %w, stderr: %s", source, dest, err, stderr.String())
