@@ -19,6 +19,7 @@ type Model struct {
 
 	// General State
 	Err         error
+	successMsg  string
 	cursor      int
 	selected    snaps.Backup
 	subvolNames []string

@@ -8,6 +8,7 @@ import (
 func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		m.successMsg = ""
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
 			return m, tea.Quit, nil

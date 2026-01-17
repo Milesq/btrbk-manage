@@ -15,7 +15,13 @@ func (m Model) View() string {
 	title := fmt.Sprintf("Btrbk backups in %s  —  %d backups\n", m.dir, len(m.backups))
 	b.WriteString(title)
 	b.WriteString(strings.Repeat("─", utils.MinMax(10, len(title), 80)))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
+
+	if m.successMsg != "" {
+		fmt.Fprintf(&b, "✓ %s\n", m.successMsg)
+	} else {
+		b.WriteString("\n")
+	}
 
 	if m.isConfirmingDelete {
 		m.viewDeleteConfirmation(&b)

@@ -14,6 +14,9 @@ func (m Model) handleRestoreSelector(msg tea.Msg) (Model, tea.Cmd, *router.Updat
 
 		if exitMsg.Reason == multiselect.UserSaved && len(exitMsg.Selected) > 0 {
 			m.Err = m.mng.Restore(m.selected, exitMsg.Selected)
+			if m.Err == nil {
+				m.successMsg = "Backup restored successfully"
+			}
 		}
 		return m, nil, nil
 	}
