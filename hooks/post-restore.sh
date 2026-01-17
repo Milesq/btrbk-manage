@@ -1,1 +1,4 @@
-sudo rsync -aSHAX --delete --numeric-ids --human-readable --info=stats2,progress2 /mnt/fs_roots/system/@/boot/ /boot/
+#!/usr/bin/env bash
+set -euo pipefail
+
+head -c 10 /dev/random | base64 > ./mnt/@/restoration_complete.txt

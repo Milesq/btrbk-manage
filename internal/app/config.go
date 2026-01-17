@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
@@ -12,6 +13,7 @@ import (
 const DefaultConfigPath = "/etc/btrbk-manage/config.yaml"
 
 type Config struct {
+	configPath                string
 	BtrbkConfigFile           string   `yaml:"btrbk_config_file"`
 	DefaultSubvolsRestoreList []string `yaml:"default_subvols_restore_list"`
 	OldFormat                 string   `yaml:"old_format"`
@@ -23,6 +25,7 @@ type Paths struct {
 	Target    string `yaml:"target"`
 	Meta      string `yaml:"meta,omitempty"`
 	MetaTrash string `yaml:"meta_trash,omitempty"`
+	Hooks     string `yaml:"hooks,omitempty"`
 }
 
 func (p Paths) String() string {
@@ -57,6 +60,7 @@ func LoadConfig(configPath, project string) (*Config, error) {
 
 func readConfig(path string) (*Config, error) {
 	var cfg Config
+	cfg.configPath = path
 	data, err := os.ReadFile(path)
 
 	if err != nil {
@@ -101,6 +105,10 @@ func (c *Config) detectMissing() error {
 
 	if c.Paths.MetaTrash == "" {
 		c.Paths.MetaTrash = c.Paths.Snaps + "/.meta/.trash"
+	}
+
+	if c.Paths.Hooks == "" {
+		c.Paths.Hooks = path.Dir(c.configPath) + "/hooks"
 	}
 
 	return nil

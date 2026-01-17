@@ -6,6 +6,7 @@ import (
 	"milesq.dev/btrbk-manage/internal/app"
 	"milesq.dev/btrbk-manage/internal/snaps"
 	"milesq.dev/btrbk-manage/pkg/form"
+	"milesq.dev/btrbk-manage/pkg/multiselect"
 	"milesq.dev/btrbk-manage/pkg/router"
 )
 
@@ -17,28 +18,30 @@ type Model struct {
 	cfg     *app.Config
 
 	// General State
-	Err      error
-	cursor   int
-	selected snaps.Backup
+	Err         error
+	successMsg  string
+	cursor      int
+	selected    snaps.Backup
+	subvolNames []string
 
 	// Modes flags
-	listProtectedOnly  bool
-	trashMode          bool
-	isEdit             bool
-	isConfirmingDelete bool
+	listProtectedOnly              bool
+	trashMode                      bool
+	isEdit                         bool
+	isConfirmingDelete             bool
+	isChoosingSubvolumesForRestore bool
 
 	// SubComponents
-	form form.Model
+	form            form.Model
+	restoreSelector multiselect.Model
 }
 
 func InitialModel(cfg *app.Config) (Model, error) {
-	snapsDir := cfg.Paths.Snaps
-
-	backupManager := snaps.GetManagerForDirectory(snapsDir, cfg.Paths.Meta, cfg.Paths.MetaTrash)
+	backupManager := snaps.GetBackupManager(cfg.Paths)
 	inputs := getProtectionNoteInputs()
 
 	m := Model{
-		dir: snapsDir,
+		dir: cfg.Paths.Snaps,
 		mng: backupManager,
 		cfg: cfg,
 		form: form.New(inputs, form.NewFormProps().WithStyles(form.FormStyles{
@@ -60,6 +63,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	updatedModel, cmd := router.NewRouter(m).
 		When(m.isConfirmingDelete, m.handleDeleteConfirmation).
 		When(m.isEdit, m.handleForm).
+		When(m.isChoosingSubvolumesForRestore, m.handleRestoreSelector).
 		Default(m.handleList).
 		Update(msg)
 	return updatedModel, cmd
@@ -71,6 +75,8 @@ func (m *Model) recollect() {
 	m.Err = err
 
 	filtered := []snaps.Backup{}
+
+	m.subvolNames = backups.SubvolNames
 
 	for _, backup := range backups.Backups {
 		if m.trashMode && !backup.IsTrashed {

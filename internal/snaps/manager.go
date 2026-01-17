@@ -5,16 +5,16 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+
+	"milesq.dev/btrbk-manage/internal/app"
 )
 
-func GetManagerForDirectory(snapDirectory, metaDir, trashDir string) BackupManager {
-	return BackupManager{snapDirectory, metaDir, trashDir, nil, nil, nil}
+func GetBackupManager(paths app.Paths) BackupManager {
+	return BackupManager{paths: paths}
 }
 
 type BackupManager struct {
-	dir      string
-	metaDir  string
-	trashDir string
+	paths app.Paths
 
 	availableSubvolumes []string
 	subvolumes          []string
@@ -42,6 +42,6 @@ func (mng *BackupManager) isAvailable(subvolume string) bool {
 }
 
 func (mng *BackupManager) setupSubvolumeMeta(timestamp string) error {
-	metaDir := filepath.Join(mng.metaDir, timestamp)
+	metaDir := filepath.Join(mng.paths.Meta, timestamp)
 	return os.MkdirAll(metaDir, 0755)
 }
