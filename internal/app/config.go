@@ -26,6 +26,7 @@ type Paths struct {
 	Meta      string `yaml:"meta,omitempty"`
 	MetaTrash string `yaml:"meta_trash,omitempty"`
 	Hooks     string `yaml:"hooks,omitempty"`
+	Logs      string
 }
 
 func (p Paths) String() string {
@@ -56,10 +57,6 @@ func LoadConfig(configPath, project string) (*Config, error) {
 	}
 
 	return cfg, nil
-}
-
-func (cfg Config) GetConfigPath() string {
-	return cfg.configPath
 }
 
 func readConfig(path string) (*Config, error) {
@@ -101,6 +98,10 @@ func (c *Config) detectMissing() error {
 
 	if c.OldFormat == "" {
 		c.OldFormat = "{{.SubvolName}}.old"
+	}
+
+	if c.Paths.Logs == "" {
+		c.Paths.Logs = filepath.Join(c.configPath, "../debug.log")
 	}
 
 	if c.Paths.Meta == "" {

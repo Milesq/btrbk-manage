@@ -8,5 +8,6 @@ old_format: "{{.SubvolName}}.old"
 paths:
     snaps: ./mnt/@snaps
     target: ./mnt
+    # logs: ./debug.log
     # meta: ./mnt/@snaps/.meta
     # meta_trash: ./mnt/@snaps/.meta/.trash
