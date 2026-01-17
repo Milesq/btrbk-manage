@@ -100,13 +100,17 @@ func (mng *BackupManager) executeHook(name string, env []string) error {
 	}
 
 	var stderr bytes.Buffer
+	var stdout bytes.Buffer
 	cmd := exec.Command(hookPath)
 	cmd.Stderr = &stderr
+	cmd.Stdout = &stdout
 	cmd.Env = env
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to execute %s: %w, stderr: %s", hookPath, err, stderr.String())
 	}
+	log.Print(name, " hook output:\n", stdout.String())
+	log.Print("output end")
 
 	return nil
 }
