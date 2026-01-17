@@ -21,6 +21,8 @@ func (m Model) View() string {
 		m.viewDeleteConfirmation(&b)
 	} else if m.isEdit {
 		b.WriteString(m.form.View())
+	} else if m.isChoosingSubvolumesForRestore {
+		b.WriteString(m.restoreSelector.View())
 	} else {
 		m.viewList(&b)
 		m.writeHelpMessage(&b)

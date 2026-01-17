@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/lipgloss"
 	"milesq.dev/btrbk-manage/internal/snaps"
+	"milesq.dev/btrbk-manage/pkg/multiselect"
 )
 
 func getProtectionNoteInputs() []textinput.Model {
@@ -63,4 +65,27 @@ func (m *Model) getProtectionNote(values []string) (note snaps.ProtectionNote, e
 		note.Tags[j] = strings.TrimSpace(note.Tags[j])
 	}
 	return
+}
+
+func (m *Model) createRestoreSelector() multiselect.Model {
+	styles := multiselect.Styles{
+		Title:        lipgloss.NewStyle().Bold(true).MarginBottom(1),
+		Item:         lipgloss.NewStyle(),
+		SelectedItem: focusedStyle,
+		Cursor:       focusedStyle,
+		CheckedBox:   "[x]",
+		UncheckedBox: "[ ]",
+	}
+
+	preselected := m.cfg.DefaultSubvolsRestoreList
+	if len(preselected) == 0 {
+		preselected = m.subvolNames
+	}
+
+	return multiselect.New(
+		fmt.Sprintf("Select subvolumes to restore from %s:", m.selected.Timestamp),
+		m.subvolNames,
+		preselected,
+		&styles,
+	)
 }

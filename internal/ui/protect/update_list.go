@@ -74,9 +74,9 @@ func (m Model) handleList(msg tea.Msg) (Model, tea.Cmd, *router.UpdateMeta) {
 			}
 		case "r":
 			if m.Err == nil && len(m.backups) > 0 {
-				backup := m.backups[m.cursor]
-
-				m.Err = m.mng.Restore(backup, m.subvolNames)
+				m.selected = m.backups[m.cursor]
+				m.isChoosingSubvolumesForRestore = true
+				m.restoreSelector = m.createRestoreSelector()
 			}
 		}
 	}
