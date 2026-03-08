@@ -182,3 +182,34 @@ func TestRestore_ReturnsErrorOnHookFailure(t *testing.T) {
 		t.Error("Restore() expected error on hook failure, got nil")
 	}
 }
+
+func TestRestore_HookReceivesRestorePathEnv(t *testing.T) {
+	tempDir, paths, cleanup := setupRestoreTestDirs(t)
+	defer cleanup()
+
+	mng := GetBackupManager(paths)
+
+	envFile := filepath.Join(tempDir, "restore_path_env")
+	createHookScript(t, paths.Hooks, "post-restore", "echo $RESTORE_PATH > "+envFile)
+
+	backup := Backup{
+		Timestamp:   "20240928T1430",
+		IsProtected: false,
+		Items:       []Snapshot{},
+	}
+
+	err := mng.Restore(backup, nil)
+	if err != nil {
+		t.Errorf("Restore() unexpected error: %v", err)
+	}
+
+	data, err := os.ReadFile(envFile)
+	if err != nil {
+		t.Fatalf("Failed to read env file: %v", err)
+	}
+
+	expected := paths.Target + "@\n"
+	if string(data) != expected {
+		t.Errorf("RESTORE_PATH = %q, want %q", string(data), expected)
+	}
+}
